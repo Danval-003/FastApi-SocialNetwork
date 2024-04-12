@@ -31,7 +31,7 @@ async def searchUserPerson(properties: Dict[str, Any]):
 
         results = makeQuery(query, listOffIndexes=['u'])
 
-        nodes = [node(**n[0].to_json()) for n in results]
+        nodes = [node(labels=n[0].labels, properties=n[0].properties) for n in results]
 
         return searchNodesModel(status='success', nodes=nodes)
     except Exception as e:

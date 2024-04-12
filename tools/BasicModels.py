@@ -64,7 +64,7 @@ class relationship(BaseModel):
 class user_person(BaseModel):
     email: str
     followerCount: int
-    registerDate: datetime.date
+    registerDate: str
     language: str
     isVerified: bool
     followCount: int
@@ -80,15 +80,15 @@ class user_person(BaseModel):
                 {
                     "email": "diname@gmail.com",
                     "followerCount": 0,
-                    "registerDate": "2021-06-16",
+                    "registerDate": "2021-06-15",
                     "language": "es",
                     "isVerified": False,
                     "followCount": 0,
                     "password": "123456",
                     "mutualCount": 0,
-                    "username": "Diname",
+                    "username": "diname",
                     "fullName": "Diname",
-                    "age": 22
+                    "age": 33
                 }
             ]
         }

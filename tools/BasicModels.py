@@ -58,3 +58,19 @@ class relationship(BaseModel):
         }
     }
 
+
+class user_person(BaseModel):
+    email: str
+    followerCount: int
+    registerDate: str
+    language: str
+    isVerified: bool
+    followCount: int
+    password: str
+    mutualCount: int
+    username: str
+    fullName: str
+    age: int
+
+
+

@@ -14,11 +14,19 @@ gridR = APIRouter()
 @gridR.post("/upload/", response_model=UploadResponse, response_model_exclude_unset=True)
 async def upload_file(file: UploadFile = None):
     try:
-        filename = secure_filename(file.filename)  # Nombre de archivo seguro (podrías obtenerlo desde la solicitud)
-        content_type = file.content_type  # Tipo de contenido por defecto para el archivo
+        if file is None:
+            raise HTTPException(status_code=400, detail="No file provided")
+
+        # Read the file content
+        file_data = await file.read()
+
+        filename = secure_filename(file.filename)  # Obtener nombre de archivo seguro
+        content_type = file.content_type  # Obtener tipo de contenido del archivo
 
         # Guardar el archivo en GridFS
-        file_id = grid_fs.put(file, filename=filename, content_type=content_type)
+        with grid_fs.new_file(filename=filename, content_type=content_type) as grid_file:
+            grid_file.write(file_data)
+            file_id = grid_file._id  # Obtener el ID del archivo en GridFS
 
         return UploadResponse(file_id=str(file_id), status="success")
     except Exception as e:

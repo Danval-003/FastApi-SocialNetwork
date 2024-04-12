@@ -1,9 +1,11 @@
 from typing import List, Dict, Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, File, UploadFile
 from tools import node, basicResponse, createRelationship, NodeD, relationship
+from werkzeug.utils import secure_filename
 
-from tools import createNode
+from tools import createNode, user_person
+from basics import grid_fs
 
 create = APIRouter()
 
@@ -50,3 +52,18 @@ async def create_relationship(R: relationship):
         return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
+async def create_user_person(U: user_person, profile_image: UploadFile = None):
+    try:
+        properties: Dict[str, Any] = U.dict()
+        labels: List[str] = ['User', 'Person']
+
+        createNode(labels, properties, merge=True)
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+
+

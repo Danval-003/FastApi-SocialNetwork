@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
+from tools import node
+
 
 class basicResponse(BaseModel):
     status: str
@@ -18,7 +20,7 @@ class basicResponse(BaseModel):
 
 class searchNodesModel(BaseModel):
     status: str
-    nodes: List[Dict[str, Any]]
+    nodes: List[node]
     model_config = {
         "json_schema_extra": {
             "examples": [

@@ -13,7 +13,9 @@ async def searchNode(N: node):
         properties: Dict[str, Any] = N.properties
         labels: List[str] = N.labels
 
-        query = f"MATCH (n:{':'.join(labels)} {format_properties(properties)}) RETURN n"
+        query = f"MATCH (n{':' if len(labels) > 0 else ''}{':'.join(labels)} {format_properties(properties)}) RETURN n"
+
+        print(query)
 
         results = makeQuery(query, listOffIndexes=['n'])
 
@@ -24,7 +26,7 @@ async def searchNode(N: node):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@read.post('/user/person')
+@read.post('/user/person', response_model=searchNodesModel, response_model_exclude_unset=True)
 async def searchUserPerson(properties: Dict[str, Any]):
     try:
         query = f"MATCH (u:User:Person {format_properties(properties)}) RETURN u"

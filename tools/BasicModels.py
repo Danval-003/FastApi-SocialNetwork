@@ -5,8 +5,8 @@ from typing import List, Dict, Any
 
 
 class node(BaseModel):
-    labels: List[str]
-    properties: Dict[str, Any]
+    labels: List[str] = []
+    properties: Dict[str, Any] = {}
     merge: bool = False
 
     model_config = {

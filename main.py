@@ -1,10 +1,12 @@
+from typing import List
+
 from starlette.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 from basics import app
 from routes import create, delete, read, update
 from gridfs_routes import gridR
-from tools import makeQuery
+from tools import makeQuery, node
 
 app.mount("/static", StaticFiles(directory=Path(__file__).parent.absolute() / "static"), name="static")
 app.include_router(create, prefix="/create", tags=["create"])
@@ -30,10 +32,10 @@ async def favicon():
     return FileResponse("static/favicon.ico")
 
 
-@app.get('/api/nodos')
+@app.get('/api/nodos', response_model=List[node], response_model_exclude_unset=True)
 def obtener_nodos():
     nodes = []
     for n in makeQuery():
-        nodes.append(n[0].to_json())
+        nodes.append(node(**n[0].to_json()))
 
     return nodes

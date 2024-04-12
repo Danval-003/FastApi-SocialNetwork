@@ -24,7 +24,7 @@ async def searchNode(N: node):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@read.post('/user/person', response_model=searchNodesModel, response_model_exclude_unset=True)
+@read.post('/user/person')
 async def searchUserPerson(properties: Dict[str, Any]):
     try:
         query = f"MATCH (u:User:Person {format_properties(properties)}) RETURN u"

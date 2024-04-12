@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
@@ -62,7 +64,7 @@ class relationship(BaseModel):
 class user_person(BaseModel):
     email: str
     followerCount: int
-    registerDate: str
+    registerDate: datetime.date
     language: str
     isVerified: bool
     followCount: int
@@ -71,6 +73,26 @@ class user_person(BaseModel):
     username: str
     fullName: str
     age: int
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "email": "diname@gmail.com",
+                    "followerCount": 0,
+                    "registerDate": "2021-06-16",
+                    "language": "es",
+                    "isVerified": False,
+                    "followCount": 0,
+                    "password": "123456",
+                    "mutualCount": 0,
+                    "username": "Diname",
+                    "fullName": "Diname",
+                    "age": 22
+                }
+            ]
+        }
+    }
 
 
 

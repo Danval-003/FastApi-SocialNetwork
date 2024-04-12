@@ -8,6 +8,7 @@ from pymongo import MongoClient
 app = FastAPI()
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
+origin = os.getenv('ORIGIN_URL')
 config = {'NEO4J_URI': os.getenv('NEO4J_URI'), 'NEO4J_USER': os.getenv('NEO4J_USERNAME'),
           'NEO4J_PASSWORD': os.getenv('NEO4J_PASSWORD'), 'MONGO_URI': os.getenv('MONGO_URI')}
 

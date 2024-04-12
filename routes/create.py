@@ -5,7 +5,7 @@ from tools import node, basicResponse, createRelationship, NodeD, relationship
 from werkzeug.utils import secure_filename
 
 from tools import createNode, user_person
-from basics import grid_fs
+from basics import grid_fs, origin
 
 create = APIRouter()
 
@@ -59,6 +59,18 @@ async def create_user_person(U: user_person, profile_image: UploadFile = None):
     try:
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
+        properties['profile_image'] = origin+"/multimedia/stream/661995a854e08ee44bee3bda/"
+
+        if profile_image is not None:
+            file_data = await profile_image.read()
+            filename = secure_filename(profile_image.filename)
+            content_type = profile_image.content_type
+
+            with grid_fs.new_file(filename=filename, content_type=content_type) as grid_file:
+                grid_file.write(file_data)
+                file_id = grid_file._id
+
+            properties['profile_image'] = origin+"/stream/"+str(file_id)+"/"
 
         createNode(labels, properties, merge=True)
 

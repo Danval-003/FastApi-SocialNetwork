@@ -2,13 +2,12 @@ import json
 import uuid
 from typing import List, Dict, Any
 
-from fastapi import APIRouter, HTTPException, File, UploadFile, Body
+from fastapi import APIRouter, HTTPException, File, UploadFile, Body, Form, Depends
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery
 from werkzeug.utils import secure_filename
 
 from tools import createNode, user_person, format_properties
 from basics import grid_fs, origin
-
 create = APIRouter()
 
 
@@ -57,20 +56,15 @@ async def create_relationship(R: relationship):
 
 
 @create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
-async def create_user_person(U: str = Body(...), profile_image: UploadFile = None):
+async def create_user_person(U: user_person = Depends(), profile_image: UploadFile = None):
     try:
-        user_data = json.loads(U)
-        U = user_person(**user_data)
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
         properties['profile_image'] = origin+"/multimedia/stream/661995a854e08ee44bee3bda/"
         properties['userId'] = str(uuid.uuid4())
 
-        print(profile_image)
-
         if profile_image:
             file_data = await profile_image.read()
-            print(file_data)
             filename = secure_filename(profile_image.filename)
             content_type = profile_image.content_type
 
@@ -78,9 +72,9 @@ async def create_user_person(U: str = Body(...), profile_image: UploadFile = Non
                 grid_file.write(file_data)
                 file_id = grid_file._id
 
-            properties['profile_image'] = origin+"/stream/"+str(file_id)+"/"
+            properties['profile_image'] = origin+"multimedia/stream/"+str(file_id)+"/"
 
-        print(properties)
+
         createNode(labels, properties, merge=True)
         response_data = {'status': f'success to create user person with id {properties['userId']}'}
 

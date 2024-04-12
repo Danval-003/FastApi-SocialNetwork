@@ -22,3 +22,18 @@ async def searchNode(N: node):
         return searchNodesModel(status='success', nodes=nodes)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@read.post('/user/person', response_model=searchNodesModel, response_model_exclude_unset=True)
+async def searchUserPerson(properties: Dict[str, Any]):
+    try:
+        query = f"MATCH (u:User:Person {format_properties(properties)}) RETURN u"
+
+        results = makeQuery(query, listOffIndexes=['u'])
+
+        nodes = [node(**n[0].to_json()) for n in results]
+
+        return searchNodesModel(status='success', nodes=nodes)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+

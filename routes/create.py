@@ -1,10 +1,11 @@
+import uuid
 from typing import List, Dict, Any
 
 from fastapi import APIRouter, HTTPException, File, UploadFile
-from tools import node, basicResponse, createRelationship, NodeD, relationship
+from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery
 from werkzeug.utils import secure_filename
 
-from tools import createNode, user_person
+from tools import createNode, user_person, format_properties
 from basics import grid_fs, origin
 
 create = APIRouter()
@@ -60,6 +61,7 @@ async def create_user_person(U: user_person, profile_image: UploadFile = None):
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
         properties['profile_image'] = origin+"/multimedia/stream/661995a854e08ee44bee3bda/"
+        properties['userId'] = str(uuid.uuid4())
 
         if profile_image is not None:
             file_data = await profile_image.read()
@@ -73,6 +75,9 @@ async def create_user_person(U: user_person, profile_image: UploadFile = None):
             properties['profile_image'] = origin+"/stream/"+str(file_id)+"/"
 
         createNode(labels, properties, merge=True)
+        response_data = {'status': f'success to create user person with id {properties['userId']}'}
+
+        return basicResponse(**response_data)
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

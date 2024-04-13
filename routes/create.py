@@ -151,6 +151,7 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
 @create.post('/post/', dependencies=[Depends(BearerAuthMiddleware())], response_model=basicResponse, response_model_exclude_unset=True)
 async def makePost(request: Request,P: postNode = Depends(), multimedia: List[UploadFile] = None):
     try:
+        print("Hola mundo")
         userID = request.state.user.properties['userId']
         properties: Dict[str, Any] = P.dict()
         labels: List[str] = ['Post']

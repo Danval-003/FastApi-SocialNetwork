@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 
 from basics import create_access_token, oauth2_scheme
-from loginUtilities import authenticate_required
+from loginUtilities import BearerAuthMiddleware
 from tools import makeQuery, node, loginModel
 import re
 
@@ -47,7 +47,6 @@ def verify_password(plain_password, hashed_password_str):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
 
 
-@loginUtilities.post('/to_try')
-@authenticate_required
+@loginUtilities.post('/to_try', dependencies=[Depends(BearerAuthMiddleware())])
 async def to_try(request: Request):
     return {"message": "You are authenticated", "user": request.state.user.dict()}

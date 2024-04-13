@@ -6,17 +6,19 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from basics import create_access_token, oauth2_scheme
 from loginUtilities import authenticate_required
-from tools import makeQuery, node
+from tools import makeQuery, node, loginModel
 import re
 
 loginUtilities = APIRouter()
 
 
 @loginUtilities.post('/login')
-async def login(email: str, password: str):
+async def login(loginInfo: loginModel):
+    email = loginInfo.email
+    password = loginInfo.password
     query = f"MATCH (u:User {{email: '{email}'}}) RETURN u"
     results = makeQuery(query, listOffIndexes=['u'])
-    if len(results) < 0:
+    if len(results) == 0:
         raise HTTPException(status_code=404, detail="User not found")
 
     user = results[0][0]

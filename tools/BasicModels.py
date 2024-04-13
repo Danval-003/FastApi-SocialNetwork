@@ -143,4 +143,9 @@ class hashtag(BaseModel):
     engagementRate: float = Field(..., example=0.0, description="Engagement rate of the hashtag")
 
 
+class loginModel(BaseModel):
+    email: str = Field(..., example="figo@gmail.com", description="Email of the user")
+    password: str = Field(..., example="123", description="Password of the user")
+
+
 

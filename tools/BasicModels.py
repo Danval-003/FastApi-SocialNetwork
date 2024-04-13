@@ -74,16 +74,12 @@ class user_person(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "email": "diname@gmail.com",
-                    "followerCount": 0,
-                    "registerDate": "2021-06-15",
+                    "email": "figos@gmail.com",
                     "language": "es",
                     "isVerified": False,
-                    "followCount": 0,
                     "password": "123456",
-                    "mutualCount": 0,
-                    "username": "diname",
-                    "fullName": "Diname",
+                    "username": "figos",
+                    "fullName": "Figo",
                     "age": 33
                 }
             ]
@@ -124,7 +120,6 @@ class user_organization(BaseModel):
 
 class postNode(BaseModel):
     textContent: str = Field(..., example="Hello", description="Content of the post")
-    views: int = Field(..., example=0, description="Number of views")
     isPrivate: bool = Field(..., example=False, description="Is the post private?")
 
 

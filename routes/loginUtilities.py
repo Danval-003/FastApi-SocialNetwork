@@ -50,4 +50,4 @@ def verify_password(plain_password, hashed_password_str):
 @loginUtilities.post('/to_try')
 @authenticate_required
 async def to_try(request: Request):
-    return {"message": "You are authenticated"}
+    return {"message": "You are authenticated", "user": request.state.user.dict()}

@@ -34,7 +34,9 @@ async def login(email: str, password: str):
     return {"access_token": access_token, "token_type": "bearer", "user": nodeUser}
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password, hashed_password_str):
+    # Convertir el hash almacenado de vuelta a bytes desde su representación en texto (hexadecimal)
+    hashed_password = bytes.fromhex(hashed_password_str)
     # Verificar si la contraseña en texto plano coincide con el hash almacenado
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
 

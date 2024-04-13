@@ -175,4 +175,5 @@ def hash_password(password):
     salt = bcrypt.gensalt()
     # Hashear la contraseña con la sal
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return str(hashed_password)
+    hashed_password_str = hashed_password.hex()
+    return hashed_password_str  # Devuelve el hash como una cadena hexadecimal

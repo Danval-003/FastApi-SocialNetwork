@@ -12,11 +12,10 @@ from werkzeug.utils import secure_filename
 
 from tools import createNode, user_organization, user_person, postNode
 from basics import grid_fs, origin
-from loginUtilities import authenticate_required
+from loginUtilities import BearerAuthMiddleware
 from langdetect import detect
 
 create = APIRouter()
-
 
 @create.post('/node', response_model=basicResponse)
 async def create_node(N: node):
@@ -65,7 +64,6 @@ async def create_relationship(R: relationship):
 
 @create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
 async def create_user_person(U: user_person = Depends(), profile_image: UploadFile = None):
-
     try:
         print(U.dict())
         query = f"MATCH (u:User:Person {format_properties({"username": U.username})}) RETURN u"
@@ -77,7 +75,6 @@ async def create_user_person(U: user_person = Depends(), profile_image: UploadFi
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="User with this email already exists")
-
 
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
@@ -151,12 +148,10 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
         return HTTPException(status_code=500, detail=str(e))
 
 
-@create.post('/post/')
-@authenticate_required
-async def makePost(request: Request, P: postNode = Depends(), multimedia: List[UploadFile] = File(...)):
+@create.post('/post/', dependencies=[Depends(BearerAuthMiddleware())], response_model=basicResponse, response_model_exclude_unset=True)
+async def makePost(request: Request,P: postNode = Depends(), multimedia: List[UploadFile] = None):
     try:
-        user = request.state.user
-        idUser = user.properties['userId']
+        userID = request.state.user.properties['userId']
         properties: Dict[str, Any] = P.dict()
         labels: List[str] = ['Post']
         properties['postId'] = str(uuid.uuid4())
@@ -177,7 +172,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
             properties['multimedia'].append(origin + "multimedia/stream/" + str(file_id) + "/")
 
         createNode(labels, properties, merge=True)
-        createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': idUser}),
+        createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': userID}),
                            node2=NodeD(['Post'], {'postId': properties['postId']}))
         response_data = {'status': f'success to create post with id {properties["postId"]}'}
 

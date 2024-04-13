@@ -64,7 +64,7 @@ class relationship(BaseModel):
 class user_person(BaseModel):
     email: str = Field(..., example="dinamo@gmail.com", description="Email of the user")
     followerCount: int = Field(..., example=0, description="Number of followers")
-    registerDate: str = Field(..., example=str(datetime.date.today()), description="Date of registration")
+    registerDate: datetime.date = Field(..., example=str(datetime.date.today()), description="Date of registration")
     language: str = Field(..., example="es", description="Language of the user")
     isVerified: bool = Field(..., example=False, description="Is the user verified?")
     followCount: int = Field(..., example=0, description="Number of people the user follows")
@@ -98,7 +98,7 @@ class user_person(BaseModel):
 class user_organization(BaseModel):
     email: str = Field(..., example="dinamo@gmail.com", description="Email of the user")
     followerCount: int = Field(..., example=0, description="Number of followers")
-    registerDate: str = Field(..., example=str(datetime.date.today()), description="Date of registration")
+    registerDate: datetime.date = Field(..., example=str(datetime.date.today()), description="Date of registration")
     language: str = Field(..., example="es", description="Language of the user")
     isVerified: bool = Field(..., example=False, description="Is the user verified?")
     followCount: int = Field(..., example=0, description="Number of people the user follows")

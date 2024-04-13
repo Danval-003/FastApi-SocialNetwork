@@ -62,12 +62,13 @@ async def create_relationship(R: relationship):
 @create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
 async def create_user_person(U: user_person = Depends(), profile_image: UploadFile = None):
     try:
-        query= f"MATCH (u:User:Person {format_properties({"username": U.username})}) RETURN u"
+        print(U.dict())
+        query = f"MATCH (u:User:Person {format_properties({"username": U.username})}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="User with this username already exists")
 
-        query= f"MATCH (u:User:Person {format_properties({"email": U.email})}) RETURN u"
+        query = f"MATCH (u:User:Person {format_properties({"email": U.email})}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="User with this email already exists")
@@ -174,4 +175,4 @@ def hash_password(password):
     salt = bcrypt.gensalt()
     # Hashear la contraseña con la sal
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed_password
+    return str(hashed_password)

@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import datetime
 from typing import List, Dict, Any
 
 import bcrypt
@@ -73,11 +74,16 @@ async def create_user_person(U: user_person = Depends(), profile_image: UploadFi
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="User with this email already exists")
 
+
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
         properties['profile_image'] = origin + "/multimedia/stream/661995a854e08ee44bee3bda/"
         properties['userId'] = str(uuid.uuid4())
         properties['password'] = hash_password(properties['password'])
+        properties['resgisterDate'] = str(datetime.date(datetime.now()))
+        properties['mutualCount'] = 0
+        properties['followCount'] = 0
+        properties['followerCount'] = 0
 
         if profile_image:
             file_data = await profile_image.read()
@@ -117,6 +123,9 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
         properties['logo_image'] = origin + "/multimedia/stream/661995a854e08ee44bee3bda/"
         properties['userId'] = str(uuid.uuid4())
         properties['password'] = hash_password(properties['password'])
+        properties['resgisterDate'] = str(datetime.date(datetime.now()))
+        properties['followCount'] = 0
+        properties['followerCount'] = 0
 
         if profile_image:
             file_data = await profile_image.read()

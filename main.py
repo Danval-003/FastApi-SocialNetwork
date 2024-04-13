@@ -4,10 +4,9 @@ from starlette.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 from basics import app
-from routes import create, delete, read, update
+from routes import create, delete, read, update, loginUtilities
 from gridfs_routes import gridR
 from tools import makeQuery, node
-from
 
 app.mount("/static", StaticFiles(directory=Path(__file__).parent.absolute() / "static"), name="static")
 app.include_router(create, prefix="/create", tags=["create"])
@@ -15,6 +14,7 @@ app.include_router(delete, prefix="/delete", tags=["delete"])
 app.include_router(read, prefix="/search", tags=["search"])
 app.include_router(update, prefix="/update", tags=["update"])
 app.include_router(gridR, prefix="/multimedia", tags=["multimedia"])
+app.include_router(loginUtilities, prefix="/login", tags=["login"])
 
 
 @app.get("/")

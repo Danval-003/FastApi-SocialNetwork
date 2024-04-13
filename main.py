@@ -7,6 +7,7 @@ from basics import app
 from routes import create, delete, read, update
 from gridfs_routes import gridR
 from tools import makeQuery, node
+from
 
 app.mount("/static", StaticFiles(directory=Path(__file__).parent.absolute() / "static"), name="static")
 app.include_router(create, prefix="/create", tags=["create"])

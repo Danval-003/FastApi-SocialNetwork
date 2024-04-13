@@ -39,3 +39,17 @@ async def searchUserPerson(properties: Dict[str, Any]):
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 
+
+@read.post('/user/organization', response_model=searchNodesModel, response_model_exclude_unset=True)
+async def searchUserPerson(properties: Dict[str, Any]):
+    try:
+        query = f"MATCH (u:User:Organization {format_properties(properties)}) RETURN u"
+
+        results = makeQuery(query, listOffIndexes=['u'])
+
+        nodes = [node(labels=n[0].labels, properties=n[0].properties) for n in results]
+
+        return searchNodesModel(status='success', nodes=nodes)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+

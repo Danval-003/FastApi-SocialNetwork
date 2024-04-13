@@ -14,26 +14,29 @@ loginUtilities = APIRouter()
 
 @loginUtilities.post('/login')
 async def login(loginInfo: loginModel):
-    email = loginInfo.email
-    password = loginInfo.password
-    query = f"MATCH (u:User {{email: '{email}'}}) RETURN u"
-    results = makeQuery(query, listOffIndexes=['u'])
-    if len(results) == 0:
-        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        email = loginInfo.email
+        password = loginInfo.password
+        query = f"MATCH (u:User {{email: '{email}'}}) RETURN u"
+        results = makeQuery(query, listOffIndexes=['u'])
+        if len(results) == 0:
+            raise HTTPException(status_code=404, detail="User not found")
 
-    user = results[0][0]
-    if not verify_password(password, user.properties['password']):
-        raise HTTPException(status_code=401, detail="Incorrect password")
+        user = results[0][0]
+        if not verify_password(password, user.properties['password']):
+            raise HTTPException(status_code=401, detail="Incorrect password")
 
-    access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(
-        data={"sub": email},
-        expires_delta=access_token_expires
-    )
+        access_token_expires = timedelta(minutes=30)
+        access_token = create_access_token(
+            data={"sub": email},
+            expires_delta=access_token_expires
+        )
 
-    nodeUser = node(labels=user.labels, properties=user.properties)
+        nodeUser = node(labels=user.labels, properties=user.properties)
 
-    return {"access_token": access_token, "token_type": "bearer", "user": nodeUser}
+        return {"access_token": access_token, "token_type": "bearer", "user": nodeUser}
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
 
 
 def verify_password(plain_password, hashed_password_str):

@@ -3,6 +3,7 @@ from datetime import timedelta
 import bcrypt
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from starlette.requests import Request
 
 from basics import create_access_token, oauth2_scheme
 from loginUtilities import authenticate_required
@@ -48,5 +49,5 @@ def verify_password(plain_password, hashed_password_str):
 
 @loginUtilities.post('/to_try')
 @authenticate_required
-async def to_try():
+async def to_try(request: Request):
     return {"message": "You are authenticated"}

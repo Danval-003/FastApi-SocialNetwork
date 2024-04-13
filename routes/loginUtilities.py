@@ -20,7 +20,7 @@ async def login(email: str, password: str):
         raise HTTPException(status_code=404, detail="User not found")
 
     user = results[0][0]
-    if not verify_password(password, user['password']):
+    if not verify_password(password, user.properties['password']):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
     access_token_expires = timedelta(minutes=30)

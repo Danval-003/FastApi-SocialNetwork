@@ -16,7 +16,7 @@ def get_user(email: str):
 
 # Decorador para requerir autenticación
 def authenticate_required(func):
-    async def wrapper(request: Request, *args, **kwargs):
+    async def wrapper(request: Request):
         token = await oauth2_scheme.__call__(request)
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -34,6 +34,8 @@ def authenticate_required(func):
         # Almacenar el objeto de usuario autenticado en la solicitud
         request.state.user = user
 
-        return await func(request, *args, **kwargs)
+        # Llamar a la función decorada con el objeto de usuario autenticado
+        return await func(request)
 
     return wrapper
+

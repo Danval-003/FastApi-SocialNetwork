@@ -148,11 +148,15 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
         return HTTPException(status_code=500, detail=str(e))
 
 
-@create.post('/post/', dependencies=[Depends(BearerAuthMiddleware())], response_model=basicResponse, response_model_exclude_unset=True)
-async def makePost(request: Request,P: postNode = Depends(), multimedia: List[UploadFile] = None):
+@create.post('/post/', dependencies=[Depends(BearerAuthMiddleware())])
+async def makePost(request: Request, P: postNode = Depends(), multimedia: List[UploadFile] = None):
     try:
         print("Hola mundo")
+        prop = request.state.user.properties
+        print(prop)
         userID = request.state.user.properties['userId']
+        print(request.state.user)
+        print(userID)
         properties: Dict[str, Any] = P.dict()
         labels: List[str] = ['Post']
         properties['postId'] = str(uuid.uuid4())
@@ -160,6 +164,9 @@ async def makePost(request: Request,P: postNode = Depends(), multimedia: List[Up
         properties['language'] = detect(properties['textContent'])
         properties['likes'] = 0
         properties['views'] = 0
+
+        if multimedia is None:
+            multimedia = []
 
         for media in multimedia:
             file_data = await media.read()

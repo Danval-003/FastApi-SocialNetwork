@@ -13,22 +13,29 @@ from warnings import warn
 
 def get_user(email: str):
     query = f"MATCH (u:User:Person {{email: '{email}'}}) RETURN u"
+    print("Query: ", query)
     results = makeQuery(query, listOffIndexes=['u'])
-    if len(results) < 0:
+    print(len(results))
+    if len(results) != 1:
         return None
+    print(len(results))
     return node(labels=results[0][0].labels, properties=results[0][0].properties)
 
 
 class BearerAuthMiddleware(HTTPBearer):
     async def __call__(self, request: Request):
+        print("BearerAuthMiddleware")
         try:
             token = await oauth2_scheme.__call__(request)
+            print("Token: ", token)
             try:
                 payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 email: str = payload.get("sub")
+                print("Email: ", email)
                 if email is None:
                     raise HTTPException(status_code=401, detail="Invalid token")
                 user = get_user(email)
+                print("User:", user)
                 if not user:
                     raise HTTPException(status_code=401, detail="User not found")
                 request.state.user = user  # Almacenar el usuario autenticado en el estado de la solicitud

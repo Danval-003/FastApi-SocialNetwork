@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Optional
 from typing import List, Dict, Any
 
 
@@ -127,6 +127,11 @@ class postNode(BaseModel):
 class loginModel(BaseModel):
     email: str = Field(..., example="figo@gmail.com", description="Email of the user")
     password: str = Field(..., example="123", description="Password of the user")
+
+
+class affiliate(BaseModel):
+    role: Optional[str] = Field(..., example="admin", description="Role of the affiliate")
+    idOrganization: str = Field(..., example="123", description="ID of the organization")
 
 
 

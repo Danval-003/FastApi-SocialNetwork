@@ -48,6 +48,76 @@ class searchNodesModel(BaseModel):
     }
 
 
+class relationShipModel(BaseModel):
+    typeR: str
+    nodeTo: node
+    nodeFrom: node
+    properties: Dict[str, Any]
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "typeR": "KNOWS",
+                    "nodeTo": {
+                        "labels": ["Person"],
+                        "properties": {
+                            "name": "Alice",
+                            "age": 33,
+                        },
+                    },
+                    "nodeFrom": {
+                        "labels": ["Person"],
+                        "properties": {
+                            "name": "Bob",
+                            "age": 44,
+                        },
+                    },
+                    "properties": {
+                        "since": "2020-01-01",
+                    }
+                }
+            ]
+        }
+    }
+
+
+class searchRelationshipsModel(BaseModel):
+    status: str
+    relationships: List[relationShipModel]
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "success",
+                    "relationships": [
+                        {
+                            "typeR": "KNOWS",
+                            "nodeTo": {
+                                "labels": ["Person"],
+                                "properties": {
+                                    "name": "Alice",
+                                    "age": 33,
+                                },
+                            },
+                            "nodeFrom": {
+                                "labels": ["Person"],
+                                "properties": {
+                                    "name": "Bob",
+                                    "age": 44,
+                                },
+                            },
+                            "properties": {
+                                "since": "2020-01-01",
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+
 # Modelo para la respuesta de éxito al subir archivo
 class UploadResponse(BaseModel):
     status: str

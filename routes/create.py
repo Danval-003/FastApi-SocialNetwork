@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
-from tools import createNode, user_organization, user_person, postNode
+from tools import createNode, user_organization, user_person, postNode, affiliate
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
 
 create = APIRouter()
@@ -172,7 +172,6 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
 
             properties['multimedia'].append(origin + "multimedia/stream/" + str(file_id) + "/")
 
-
         createNode(labels, properties, merge=True)
         createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': userID}),
                            node2=NodeD(['Post'], {'postId': properties['postId']}))
@@ -180,6 +179,24 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
 
         return basicResponse(**response_data)
 
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+
+@create.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())])
+async def create_affiliate(request: Request, af: affiliate):
+    try:
+        properties: Dict[str, Any] = af.dict()
+        properties['affiliatedDate'] = datetime.date(datetime.now())
+        typeR = 'AFFILIATE'
+        userId = request.state.user.properties['userId']
+        organizationId = properties['idOrganization']
+
+        createRelationship(typeR=typeR, properties=properties, node1=NodeD(['User'], {'userId': userId}),
+                           node2=NodeD(['User'], {'userId': organizationId}))
+
+        response_data = {'status': f'success to create affiliate with id {properties["idOrganization"]}'}
+        return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 

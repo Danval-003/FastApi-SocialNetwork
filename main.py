@@ -63,6 +63,7 @@ async def root(request: Request):
     try:
         # Obtenemos la dirección IP del cliente que realizó la solicitud
         client_ip = request.client.host
+        print(client_ip)
 
         # Obtenemos detalles de la dirección IP usando ipinfo
         details = ipinfo_handler.getDetails(client_ip)

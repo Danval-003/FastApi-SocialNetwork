@@ -159,6 +159,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         properties['language'] = detect(properties['textContent'])
         properties['likes'] = 0
         properties['views'] = 0
+        properties['hashtags'] = [tag.lower().strip() for tag in P.hashtags.split('#')]
 
         if multimedia is None:
             multimedia = []
@@ -178,7 +179,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': userID}),
                            node2=NodeD(['Post'], {'postId': properties['postId']}))
 
-        createHashtags(properties['hashtags'], properties['postId'])
+        createHashtags(P.hashtags.split('#'), properties['postId'])
         response_data = {'status': f'success to create post with id {properties["postId"]}'}
 
         return basicResponse(**response_data)

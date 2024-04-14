@@ -6,17 +6,21 @@ import uuid
 
 
 def createHashtags(hashtags: List[str], idPost: str):
+    print(hashtags)
     for hashtag in hashtags:
-        results = makeQuery(f"MATCH (h:Hashtag {{'name': {hashtag}}}) RETURN h")
+        hashtag = hashtag.lower().strip()
+        if hashtag == '':
+            continue
+        results = makeQuery(f"MATCH (h:Hashtag {format_properties({"name":hashtag})}) RETURN h")
         if len(results) == 0:
             basicProperties = {
                 'name': hashtag,
                 'idHashtag': str(uuid.uuid4()),
                 'postCount': 1,
-                'creationDate': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'creationDate': datetime.now(),
                 'engagementRate': 0
             }
-            createNode(['Hashtag'], {'name': hashtag})
+            createNode(['Hashtag'], basicProperties)
 
         else:
             basicProperties = results[0][0].properties
@@ -24,7 +28,7 @@ def createHashtags(hashtags: List[str], idPost: str):
                     "RETURN h"
             makeQuery(query, listOffIndexes=['h'])
 
-        createRelationship(NodeD(['Post'], {'idPost': idPost}),
+        createRelationship(NodeD(['Post'], {'postId': idPost}),
                            NodeD(['Hashtag'], {'name': hashtag}), 'TAGS')
 
         query = f"""

@@ -20,15 +20,15 @@ def createRelationship(node1: NodeD, node2: NodeD, typeR: str, properties=None, 
         properties = {}
 
     with neo4j_driver.session() as session:
-        cypher_query = f"MERGE (a{':' if len(node1.labels) > 0 else ''}{':'.join(node1.labels)} " \
+        cypher_query = f"MATCH (a{':' if len(node1.labels) > 0 else ''}{':'.join(node1.labels)} " \
                        f"{format_properties(node1.properties)}) " \
-                       f"MERGE (b{':' if len(node2.labels) > 0 else ''}{':'.join(node2.labels)}" \
+                       f"MATCH (b{':' if len(node2.labels) > 0 else ''}{':'.join(node2.labels)}" \
                        f" {format_properties(node2.properties)}) " \
                        f"CREATE (a)-[r:{typeR} {format_properties(properties)}]->(b)"
         if merge:
-            cypher_query = f"MERGE (a{':' if len(node1.labels) > 0 else ''}{':'.join(node1.labels)}" \
+            cypher_query = f"MATCH (a{':' if len(node1.labels) > 0 else ''}{':'.join(node1.labels)}" \
                            f"{format_properties(node1.properties)}) " \
-                           f"MERGE (b{':' if len(node2.labels) > 0 else ''}{':'.join(node2.labels)} " \
+                           f"MATCH (b{':' if len(node2.labels) > 0 else ''}{':'.join(node2.labels)} " \
                            f"{format_properties(node2.properties)}) " \
                            f"MERGE (a)-[r:{typeR} {format_properties(properties)}]->(b)"
         session.run(cypher_query)

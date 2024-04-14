@@ -121,7 +121,7 @@ class user_organization(BaseModel):
 class postNode(BaseModel):
     textContent: str = Field(..., example="Hello", description="Content of the post")
     isPrivate: bool = Field(..., example=False, description="Is the post private?")
-    hashtags: List[str] = Field(..., example=["hello"], description="List of hashtags")
+    hashtags: str = Field(..., example="", description="List of hashtags split with #")
 
 
 class loginModel(BaseModel):

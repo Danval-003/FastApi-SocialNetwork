@@ -69,6 +69,7 @@ class user_person(BaseModel):
     username: str = Field(..., example="dinamo", description="Username of the user")
     name: str = Field(..., example="Dinamo", description="Full name of the user")
     age: int = Field(..., example=33, description="Age of the user")
+    job: str = Field(..., example="Developer", description="Job of the user")
 
     model_config = {
         "json_schema_extra": {

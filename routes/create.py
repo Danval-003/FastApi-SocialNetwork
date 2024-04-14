@@ -121,7 +121,7 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
 
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Organization']
-        properties['logo_image'] = origin + "multimedia/stream/661995a854e08ee44bee3bda/"
+        properties['profile_image'] = origin + "multimedia/stream/661995a854e08ee44bee3bda/"
         properties['userId'] = str(uuid.uuid4())
         properties['password'] = hash_password(properties['password'])
         properties['resgisterDate'] = str(datetime.date(datetime.now()))
@@ -159,7 +159,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         properties['language'] = detect(properties['textContent'])
         properties['likes'] = 0
         properties['views'] = 0
-        properties['hashtags'] = [tag.lower().strip() for tag in P.hashtags.split('#')]
+        properties['hashtags'] = [tag.lower().strip() for tag in P.hashtags.split('#') if tag.lower().strip() != '']
 
         if multimedia is None:
             multimedia = []

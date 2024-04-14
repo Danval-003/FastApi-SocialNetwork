@@ -9,15 +9,17 @@ def createHashtags(hashtags: List[str], idPost: str):
     print(hashtags)
     for hashtag in hashtags:
         hashtag = hashtag.lower().strip()
+        idTag = str(uuid.uuid4())
+        order = 1
         if hashtag == '':
             continue
         results = makeQuery(f"MATCH (h:Hashtag {format_properties({"name":hashtag})}) RETURN h", listOffIndexes=['h'])
         if len(results) == 0:
             basicProperties = {
                 'name': hashtag,
-                'idHashtag': str(uuid.uuid4()),
+                'idHashtag': idTag,
                 'postCount': 1,
-                'creationDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'creationDate': datetime.date(datetime.now()),
                 'engagementRate': 0
             }
             createNode(['Hashtag'], basicProperties)
@@ -26,10 +28,18 @@ def createHashtags(hashtags: List[str], idPost: str):
             basicProperties = results[0][0].properties
             query = f"MATCH (h:Hashtag {format_properties({'name': hashtag})}) SET h.postCount = {basicProperties['postCount']+1} " \
                     "RETURN h"
-            makeQuery(query, listOffIndexes=['h'])
+            tag = makeQuery(query, listOffIndexes=['h'])
+            tag = tag[0][0]
+            idTag = tag.properties['idHashtag']
+            order = tag.properties['postCount']
 
         createRelationship(NodeD(['Post'], {'postId': idPost}),
-                           NodeD(['Hashtag'], {'name': hashtag}), 'TAGS')
+                           NodeD(['Hashtag'], {'name': hashtag}), 'TAGS',
+                           properties={
+                                 'creationDate': datetime.date(datetime.now()),
+                                  'idHashtag': idTag,
+                               'creationOrder': order
+                           })
 
         query = f"""
         MATCH (h:Hashtag {format_properties({'name': hashtag})})-[:TAGS]->(p:Post)

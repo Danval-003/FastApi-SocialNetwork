@@ -25,8 +25,7 @@ async def update_user(Up: UpdateModels.updateUser, request: Request):
         userId = request.state.user.properties['userId']
         propsLast = request.state.user.properties
         properties: Dict[str, Any] = {key: value for key, value in Up.properties.items() if value is not None and
-                                      key in propsLast}
-
+                                      key in propsLast and key != 'userId'}
 
         def format(props):
             format_ = ''

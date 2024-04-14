@@ -12,6 +12,7 @@ from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
 from tools import createNode, user_organization, user_person, postNode, affiliate
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
+from otherOperations import createHashtags
 
 create = APIRouter()
 
@@ -176,6 +177,8 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         createNode(labels, properties, merge=True)
         createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': userID}),
                            node2=NodeD(['Post'], {'postId': properties['postId']}))
+
+        createHashtags(properties['hashtags'], properties['postId'])
         response_data = {'status': f'success to create post with id {properties["postId"]}'}
 
         return basicResponse(**response_data)

@@ -11,7 +11,7 @@ def createHashtags(hashtags: List[str], idPost: str):
         hashtag = hashtag.lower().strip()
         if hashtag == '':
             continue
-        results = makeQuery(f"MATCH (h:Hashtag {format_properties({"name":hashtag})}) RETURN h")
+        results = makeQuery(f"MATCH (h:Hashtag {format_properties({"name":hashtag})}) RETURN h", listOffIndexes=['h'])
         if len(results) == 0:
             basicProperties = {
                 'name': hashtag,

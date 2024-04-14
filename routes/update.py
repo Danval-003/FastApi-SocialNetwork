@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile
 import bcrypt
 from starlette.requests import Request
+from werkzeug.utils import secure_filename
 
 from tools import detachDeleteNode, node, basicResponse, UpdateModels, makeQuery, format_properties
 from typing import Dict, Any, List
 from loginUtilities import BearerAuthMiddleware
+from basics import grid_fs, origin
 
 update = APIRouter()
 
@@ -25,7 +27,7 @@ async def update_user(Up: UpdateModels.updateUser, request: Request):
         userId = request.state.user.properties['userId']
         propsLast = request.state.user.properties
         properties: Dict[str, Any] = {key: value for key, value in Up.properties.items() if value is not None and
-                                      key in propsLast and key != 'userId'}
+                                      key in propsLast and key != 'userId' and key != 'profile_image'}
 
         def format(props):
             format_ = ''
@@ -52,6 +54,30 @@ async def update_user(Up: UpdateModels.updateUser, request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@update.post('/user/profileImage', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def update_profile_image(newProfileImage: UploadFile, request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        if newProfileImage is None:
+            raise HTTPException(status_code=400, detail="No file provided")
+
+        file_data = await newProfileImage.read()
+        filename = secure_filename(newProfileImage.filename)
+        content_type = newProfileImage.content_type
+
+        with grid_fs.new_file(filename=filename, content_type=content_type) as grid_file:
+            grid_file.write(file_data)
+            file_id = grid_file._id
+
+        properties = {'profile_image': origin + "multimedia/stream/" + str(file_id) + "/"}
+
+        query = f"MATCH (n:User {format_properties({'userId': userId})}) SET n.profile_image = '{properties['profile_image']}' RETURN n"
+        makeQuery(query, listOffIndexes=['n'])
+        return basicResponse(status='success to update profile image')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Función para hashear una contraseña y generar una sal

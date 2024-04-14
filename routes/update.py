@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+import bcrypt
 from starlette.requests import Request
 
 from tools import detachDeleteNode, node, basicResponse, UpdateModels, makeQuery, format_properties
@@ -21,12 +22,18 @@ async def update_node(N: node):
              dependencies=[Depends(BearerAuthMiddleware())])
 async def update_user(Up: UpdateModels.updateUser, request: Request):
     try:
-        userId = request.state.user['userId']
-        properties: Dict[str, Any] = Up.properties
+        userId = request.state.user.properties['userId']
+        propsLast = request.state.user.properties
+        properties: Dict[str, Any] = {key: value for key, value in Up.properties.items() if value is not None and
+                                      key in propsLast}
+
 
         def format(props):
             format_ = ''
             for key, value in props.items():
+                if key == 'password':
+                    value = hash_password(str(value))
+
                 if type(value) == str:
                     format_ += f"n.{key} = '{value}', "
                 elif type(value) == int:
@@ -45,3 +52,14 @@ async def update_user(Up: UpdateModels.updateUser, request: Request):
         return basicResponse(status='success to update user')
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# Función para hashear una contraseña y generar una sal
+def hash_password(password):
+    # Generar una sal aleatoria
+    salt = bcrypt.gensalt()
+    # Hashear la contraseña con la sal
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    hashed_password_str = hashed_password.hex()
+    return hashed_password_str  # Devuelve el hash como una cadena hexadecimal

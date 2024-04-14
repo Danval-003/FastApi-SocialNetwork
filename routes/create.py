@@ -236,7 +236,7 @@ async def follow(request: Request, followData: follow):
         UNWIND commonFollowers AS commonFollower
         RETURN commonFollower
         """
-        results = makeQuery(query, listOffIndexes=['r', 'r2'])
+        results = makeQuery(query, listOffIndexes=['commonFollower'])
 
         weight = len(results) + 1
 

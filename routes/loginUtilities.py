@@ -16,9 +16,9 @@ loginUtilities = APIRouter()
 @loginUtilities.post('/login')
 async def login(loginInfo: loginModel):
     try:
-        email = loginInfo.email
+        username = loginInfo.username
         password = loginInfo.password
-        query = f"MATCH (u:User {{email: '{email}'}}) RETURN u"
+        query = f"MATCH (u:User {{username: '{username}'}}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) == 0:
             raise HTTPException(status_code=404, detail="User not found")
@@ -29,7 +29,7 @@ async def login(loginInfo: loginModel):
 
         access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(
-            data={"sub": email},
+            data={"sub": user},
             expires_delta=access_token_expires
         )
 

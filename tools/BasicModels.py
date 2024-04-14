@@ -67,7 +67,7 @@ class user_person(BaseModel):
     isVerified: bool = Field(..., example=False, description="Is the user verified?")
     password: str = Field(..., example="123456", description="Password of the user")
     username: str = Field(..., example="dinamo", description="Username of the user")
-    fullName: str = Field(..., example="Dinamo", description="Full name of the user")
+    name: str = Field(..., example="Dinamo", description="Full name of the user")
     age: int = Field(..., example=33, description="Age of the user")
 
     model_config = {
@@ -93,6 +93,7 @@ class user_organization(BaseModel):
     isVerified: bool = Field(..., example=False, description="Is the user verified?")
     password: str = Field(..., example="123456", description="Password of the user")
     name: str = Field(..., example="Dinamo", description="Name of the organization")
+    username: str = Field(..., example="Dinamo", description="Name of the organization")
     websiteUrl: str = Field(..., example="https://dinamo.com", description="URL of the website")
     contactInfo: str = Field(..., example="Contact info", description="Contact info of the organization")
     typeOrg: str = Field(..., example="IT", description="Type of the user")
@@ -125,7 +126,7 @@ class postNode(BaseModel):
 
 
 class loginModel(BaseModel):
-    email: str = Field(..., example="figo@gmail.com", description="Email of the user")
+    username: str = Field(..., example="dinamo", description="Email of the user")
     password: str = Field(..., example="123", description="Password of the user")
 
 

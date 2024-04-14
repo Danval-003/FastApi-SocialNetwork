@@ -11,8 +11,8 @@ from tools import makeQuery, node
 from warnings import warn
 
 
-def get_user(email: str):
-    query = f"MATCH (u:User:Person {{email: '{email}'}}) RETURN u"
+def get_user(username: str):
+    query = f"MATCH (u:User:Person {{username: '{username}'}}) RETURN u"
     print("Query: ", query)
     results = makeQuery(query, listOffIndexes=['u'])
     print(len(results))
@@ -30,11 +30,11 @@ class BearerAuthMiddleware(HTTPBearer):
             print("Token: ", token)
             try:
                 payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-                email: str = payload.get("sub")
-                print("Email: ", email)
-                if email is None:
+                username: str = payload.get("sub")
+                print("Email: ", username)
+                if username is None:
                     raise HTTPException(status_code=401, detail="Invalid token")
-                user = get_user(email)
+                user = get_user(username)
                 print("User:", user)
                 if not user:
                     raise HTTPException(status_code=401, detail="User not found")

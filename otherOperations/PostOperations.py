@@ -17,7 +17,7 @@ def createHashtags(hashtags: List[str], idPost: str):
                 'name': hashtag,
                 'idHashtag': str(uuid.uuid4()),
                 'postCount': 1,
-                'creationDate': datetime.now(),
+                'creationDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 'engagementRate': 0
             }
             createNode(['Hashtag'], basicProperties)

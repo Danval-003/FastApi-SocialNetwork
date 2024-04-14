@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
-from tools import createNode, user_organization, user_person, postNode, affiliate
+from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
 from otherOperations import createHashtags
 
@@ -179,8 +179,10 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
 
 
 @create.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())])
-async def create_affiliate(request: Request, usernameOrganization: str, role: Optional[str]):
+async def create_affiliate(request: Request, affiliateData: affiliate):
     try:
+        usernameOrganization = affiliateData.usernameOrganization
+        role = affiliateData.role
         userId = request.state.user.properties['userId']
         query = f"MATCH (u:User:Person {format_properties({'userId': userId})}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
@@ -209,9 +211,11 @@ async def create_affiliate(request: Request, usernameOrganization: str, role: Op
         return HTTPException(status_code=500, detail=str(e))
 
 
+
 @create.post('/follow', dependencies=[Depends(BearerAuthMiddleware())])
-async def follow(request: Request, id_user: str):
+async def follow(request: Request, followData: follow):
     try:
+        id_user: str = followData.userId
         userId = request.state.user.properties['userId']
         otherUser = {'userId': id_user}
 
@@ -257,8 +261,10 @@ async def follow(request: Request, id_user: str):
 
 
 @create.post('/like', dependencies=[Depends(BearerAuthMiddleware())])
-async def like(request: Request, id_post: str, positive: Optional[bool] = True):
+async def like(request: Request, likeData: like):
     try:
+        id_post = likeData.postId
+        positive = likeData.positive
         userId = request.state.user.properties['userId']
         post = {'postId': id_post}
 

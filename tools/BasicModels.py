@@ -143,5 +143,9 @@ class affiliate(BaseModel):
     role: Optional[str] = Field(..., example="admin", description="Role of the affiliate")
     name: str = Field(..., example="123", description="ID of the organization")
 
+class follow(BaseModel):
+    username: str = Field(..., example="dinamo", description="Username of the user")
 
-
+class like(BaseModel):
+    idPost: str = Field(..., example="123", description="ID of the post")
+    positive: Optional[bool] = Field(..., example=True, description="Positive or negative like")

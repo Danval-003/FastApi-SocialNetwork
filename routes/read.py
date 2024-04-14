@@ -56,7 +56,7 @@ async def searchUserPerson(properties: Dict[str, Any]):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@read.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware)], response_model=searchRelationshipsModel,
+@read.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())], response_model=searchRelationshipsModel,
            response_model_exclude_unset=True)
 async def searchAffiliate(request: Request):
     try:

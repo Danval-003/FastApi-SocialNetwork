@@ -150,3 +150,5 @@ class follow(BaseModel):
 class like(BaseModel):
     idPost: str = Field(..., example="123", description="ID of the post")
     positive: Optional[bool] = Field(..., example=True, description="Positive or negative like")
+
+

@@ -212,13 +212,12 @@ async def create_affiliate(request: Request, affiliateData: affiliate):
         return HTTPException(status_code=500, detail=str(e))
 
 
-
 @create.post('/follow', dependencies=[Depends(BearerAuthMiddleware())])
 async def follow(request: Request, followData: follow):
     try:
-        id_user: str = followData.userId
+        username: str = followData.username
         userId = request.state.user.properties['userId']
-        otherUser = {'userId': id_user}
+        otherUser = {'username': username}
 
         query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:FOLLOW]->(o:User {format_properties(otherUser)}) RETURN r"
         results = makeQuery(query, listOffIndexes=['r'])
@@ -251,7 +250,7 @@ async def follow(request: Request, followData: follow):
         }, node1=user, node2=other)
 
         if mutual:
-            queryToUpdate = f"MATCH (u:User {format_properties(otherUser)})- [r:FOLLOW] -> (o:User {format_properties({'userId': userId})}) "\
+            queryToUpdate = f"MATCH (u:User {format_properties(otherUser)})- [r:FOLLOW] -> (o:User {format_properties({'userId': userId})}) " \
                             f"SET r.isMutual = true, r.weight={weight} RETURN r"
             makeQuery(queryToUpdate, listOffIndexes=['r'])
 

@@ -3,6 +3,7 @@ import warnings
 
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi.params import File
 from starlette.responses import StreamingResponse
 from tools import UploadResponse, basicResponse, getIdGrid
 from basics import grid_fs
@@ -12,7 +13,7 @@ gridR = APIRouter()
 
 
 @gridR.post("/upload/", response_model=UploadResponse, response_model_exclude_unset=True)
-async def upload_file(file: UploadFile = None):
+async def upload_file(file: UploadFile = File(...)):
     try:
         if file is None:
             raise HTTPException(status_code=400, detail="No file provided")

@@ -33,31 +33,6 @@ app.add_middleware(
 
 ipinfo_handler = ipinfo.getHandler(access_token=SECRET_KEY)
 
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    print(f"Received request: {request.method} {request.url}")
-
-    # Obtener los datos del cuerpo de la solicitud (FormData)
-    form_data = await request.form()
-    print(f"FormData: {form_data}")
-
-    # Recorrer y loguear cada campo y valor del FormData
-    for field in form_data:
-        value = form_data.get(field)
-        print(f"FormData field: {field}, value: {value}")
-
-    # Continuar con el procesamiento de la solicitud
-    response = await call_next(request)
-
-    # Loguear información sobre la respuesta enviada
-    print(f"Sent response: {response.status_code}")
-
-    return response
-
-
-
-
 @app.get("/")
 async def root(request: Request):
     try:

@@ -62,9 +62,8 @@ async def create_relationship(R: relationship):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
-async def create_user_person(U: user_person = Depends(), profile_image: Optional[UploadFile] = File(None)):
-    print("ASDASDAD")
+@create.post('/user/person/', response_model=basicResponse, response_model_exclude_unset=True)
+async def create_user_person(profile_image: UploadFile = File(None), U: user_person = Depends()):
     try:
         query = f"MATCH (u:User:Person {format_properties({"username": U.username})}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])

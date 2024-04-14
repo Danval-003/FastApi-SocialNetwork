@@ -78,7 +78,7 @@ async def create_user_person(U: user_person = Depends(), profile_image: UploadFi
 
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
-        properties['profile_image'] = origin + "/multimedia/stream/661995a854e08ee44bee3bda/"
+        properties['profile_image'] = origin + "multimedia/stream/661995a854e08ee44bee3bda/"
         properties['userId'] = str(uuid.uuid4())
         properties['password'] = hash_password(properties['password'])
         properties['resgisterDate'] = str(datetime.date(datetime.now()))
@@ -121,7 +121,7 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
 
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Organization']
-        properties['logo_image'] = origin + "/multimedia/stream/661995a854e08ee44bee3bda/"
+        properties['logo_image'] = origin + "multimedia/stream/661995a854e08ee44bee3bda/"
         properties['userId'] = str(uuid.uuid4())
         properties['password'] = hash_password(properties['password'])
         properties['resgisterDate'] = str(datetime.date(datetime.now()))

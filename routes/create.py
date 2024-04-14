@@ -101,7 +101,7 @@ async def create_user_person(profile_image: UploadFile = File(None), U: user_per
 
 
 @create.post('/user/organization', response_model=basicResponse, response_model_exclude_unset=True)
-async def create_user_organization(U: user_organization = Depends(), profile_image: UploadFile = None):
+async def create_user_organization(U: user_organization = Depends(), profile_image: UploadFile = File(None)):
     try:
         query = f"MATCH (u:User:Organization {format_properties({'name': U.name})}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])

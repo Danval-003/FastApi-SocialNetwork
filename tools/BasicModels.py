@@ -62,26 +62,37 @@ class relationship(BaseModel):
 
 
 class user_person(BaseModel):
-    email: str = Field(..., example="dinamo@gmail.com", description="Email of the user")
     language: str = Field(..., example="es", description="Language of the user")
     isVerified: bool = Field(..., example=False, description="Is the user verified?")
     password: str = Field(..., example="123456", description="Password of the user")
     username: str = Field(..., example="dinamo", description="Username of the user")
     name: str = Field(..., example="Dinamo", description="Full name of the user")
     age: int = Field(..., example=33, description="Age of the user")
-    job: str = Field(..., example="Developer", description="Job of the user")
+    occupation: str = Field(..., example="Developer", description="Job of the user")
+    location: str = Field(..., example="Madrid", description="Location of the user")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "email": "figos@gmail.com",
                     "language": "es",
                     "isVerified": False,
-                    "password": "123456",
-                    "username": "figos",
-                    "fullName": "Figo",
-                    "age": 33
+                    "password": "123456+",
+                    "username": "dinamo",
+                    "name": "Dinamo",
+                    "age": 33,
+                    "occupation": "Developer",
+                    "location": "Madrid"
+                },
+                {
+                    "language": "es",
+                    "isVerified": False,
+                    "password": "123456+",
+                    "username": "dinamo",
+                    "name": "Dinamo",
+                    "age": 33,
+                    "occupation": "Developer",
+                    "location": "Madrid"
                 }
             ]
         }
@@ -89,31 +100,28 @@ class user_person(BaseModel):
 
 
 class user_organization(BaseModel):
-    email: str = Field(..., example="dinamo@gmail.com", description="Email of the user")
     language: str = Field(..., example="es", description="Language of the user")
     isVerified: bool = Field(..., example=False, description="Is the user verified?")
     password: str = Field(..., example="123456", description="Password of the user")
     name: str = Field(..., example="Dinamo", description="Name of the organization")
     username: str = Field(..., example="Dinamo", description="Name of the organization")
-    websiteUrl: str = Field(..., example="https://dinamo.com", description="URL of the website")
-    contactInfo: str = Field(..., example="Contact info", description="Contact info of the organization")
-    typeOrg: str = Field(..., example="IT", description="Type of the user")
+    website: str = Field(..., example="https://dinamo.com", description="URL of the website")
+    contact: str = Field(..., example="Contact info", description="Contact info of the organization")
+    orgType: str = Field(..., example="IT", description="Type of the user")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "email": "hello@hello.com",
-                    "followerCount": 0,
-                    "registerDate": "2021-06-15",
+                    "email": "dimo@gmail.com",
                     "language": "es",
                     "isVerified": False,
-                    "followCount": 0,
-                    "password": "123456",
+                    "password": "123456+",
                     "name": "Dinamo",
-                    "websiteUrl": "https://dinamo.com",
-                    "contactInfo": "Contact info",
-                    "typeOrg": "IT"
+                    "username": "Dinamo",
+                    "website": "https://dinamo.com",
+                    "contact": "Contact info",
+                    "orgType": "IT"
                 }
             ]
         }

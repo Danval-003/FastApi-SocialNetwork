@@ -117,3 +117,37 @@ async def searchPost(request: Request):
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@read.post('/recommend/post', dependencies=[Depends(BearerAuthMiddleware())])
+async def recommendPost(request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        query = f"""
+        // Obtener interacciones de un usuario específico
+        MATCH (u:User {format_properties({'userId': userId})})-[interaction]->(p:Post)
+        WHERE type(interaction) IN ['LIKES', 'COMMENTS', 'SAVES']
+        WITH u, p, count(interaction) AS strength
+        
+        // Calcular similitud entre posts basada en las etiquetas y propiedades
+        MATCH (p1:Post)-[:TAGS]->(h:Hashtag)<-[:TAGS]-(p2:Post)
+        WHERE p1 <> p2
+        WITH p1, p2, collect(h.name) AS commonTags, count(*) AS tagOverlap
+        MERGE (p1)-[similarity:SIMILAR_TO]->(p2)
+        SET similarity.score = tagOverlap
+        WITH p1, p2
+        
+        // Recomendar posts similares y recientes a los que el usuario ha interactuado
+        MATCH (u)-[:LIKES|COMMENTS|SAVES]->(p:Post)
+        WITH u, p
+        MATCH (p)-[:SIMILAR_TO]->(recommended:Post)
+        WHERE NOT (u)-[:LIKES|COMMENTS|SAVES]->(recommended) 
+        RETURN recommended
+        LIMIT 10
+        """
+        results = makeQuery(query, listOffIndexes=['recommended'])
+
+        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import bcrypt
 from fastapi import APIRouter, HTTPException, UploadFile, Depends
@@ -71,11 +71,6 @@ async def create_user_person(U: user_person = Depends(), profile_image: UploadFi
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="User with this username already exists")
 
-        query = f"MATCH (u:User:Person {format_properties({"email": U.email})}) RETURN u"
-        results = makeQuery(query, listOffIndexes=['u'])
-        if len(results) > 0:
-            raise HTTPException(status_code=400, detail="User with this email already exists")
-
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Person']
         properties['profile_image'] = origin + "multimedia/stream/661995a854e08ee44bee3bda/"
@@ -113,11 +108,6 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="Organization with this name already exists")
-
-        query = f"MATCH (u:User:Organization {format_properties({'email': U.email})}) RETURN u"
-        results = makeQuery(query, listOffIndexes=['u'])
-        if len(results) > 0:
-            raise HTTPException(status_code=400, detail="Organization with this email already exists")
 
         properties: Dict[str, Any] = U.dict()
         labels: List[str] = ['User', 'Organization']
@@ -201,6 +191,95 @@ async def create_affiliate(request: Request, af: affiliate):
                            node2=NodeD(['User'], {'name': organizationName}))
 
         response_data = {'status': f'success to create affiliate with {organizationName}'}
+        return basicResponse(**response_data)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+
+@create.post('/follow', dependencies=[Depends(BearerAuthMiddleware())])
+async def follow(request: Request, id_user: str):
+    try:
+        userId = request.state.user.properties['userId']
+        otherUser = {'userId': id_user}
+
+        query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:FOLLOW]->(o:User {format_properties(otherUser)}) RETURN r"
+        results = makeQuery(query, listOffIndexes=['r'])
+        if len(results) > 0:
+            raise HTTPException(status_code=400, detail="You already follow this user")
+
+        query = f"MATCH (u:User {format_properties({'userId': userId})})<-[r:FOLLOW]-(o:User {format_properties(otherUser)}) RETURN r"
+        results = makeQuery(query, listOffIndexes=['r'])
+        mutual = len(results) > 0
+
+        query = f"""
+        MATCH (u1:User {format_properties({'userId': userId})})-[:FOLLOW]->(follower1:User)
+        MATCH (u2:User {format_properties(otherUser)})-[:FOLLOW]->(follower2:User)
+        WITH collect(DISTINCT follower1) AS followersUser1, collect(DISTINCT follower2) AS followersUser2
+        WITH [user in followersUser1 WHERE user IN followersUser2] AS commonFollowers
+        UNWIND commonFollowers AS commonFollower
+        RETURN commonFollower
+        """
+        results = makeQuery(query, listOffIndexes=['r', 'r2'])
+
+        weight = len(results) + 1
+
+        user = NodeD(['User'], {'userId': userId})
+        other = NodeD(['User'], otherUser)
+
+        createRelationship(typeR='FOLLOW', properties={
+            'followDate': datetime.date(datetime.now()),
+            'isMutual': mutual,
+            'weight': weight
+        }, node1=user, node2=other)
+
+        if mutual:
+            queryToUpdate = f"MATCH (u:User {format_properties(otherUser)})- [r:FOLLOW] -> (o:User {format_properties({'userId': userId})}) "\
+                            f"SET r.isMutual = true, r.weight={weight} RETURN r"
+            makeQuery(queryToUpdate, listOffIndexes=['r'])
+
+        response_data = {'status': f'success to follow {otherUser}'}
+        return basicResponse(**response_data)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+
+@create.post('/like', dependencies=[Depends(BearerAuthMiddleware())])
+async def like(request: Request, id_post: str, positive: Optional[bool] = True):
+    try:
+        userId = request.state.user.properties['userId']
+        post = {'postId': id_post}
+
+        query = f"MATCH(p:Post {format_properties(post)}) RETURN p"
+        results = makeQuery(query, listOffIndexes=['p'])
+        if len(results) == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:LIKE]->(p:Post {format_properties(post)}) RETURN r"
+        results = makeQuery(query, listOffIndexes=['r'])
+        if len(results) > 0:
+            raise HTTPException(status_code=400, detail="You already liked this post")
+
+        query = f"MATCH (u:User)-[r:POSTED]->(p:Post {format_properties(post)}) RETURN u"
+        results = makeQuery(query, listOffIndexes=['u'])
+        if len(results) == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        author = results[0][0]
+
+        authorId = author.properties['userId']
+        authorImage = author.properties['profile_image']
+
+        user = NodeD(['User'], {'userId': userId})
+        post = NodeD(['Post'], {'postId': id_post})
+
+        createRelationship(typeR='LIKE', properties={
+            'likeDate': datetime.date(datetime.now()),
+            'authorId': authorId,
+            'authorImage': authorImage,
+            'positive': positive if positive is not None else True
+        }, node1=user, node2=post)
+
+        response_data = {'status': f'success to like post {id_post}'}
         return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

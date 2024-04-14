@@ -17,6 +17,7 @@ loginUtilities = APIRouter()
 async def login(loginInfo: loginModel):
     try:
         username = loginInfo.username
+        print(username)
         password = loginInfo.password
         query = f"MATCH (u:User {{username: '{username}'}}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
@@ -24,12 +25,13 @@ async def login(loginInfo: loginModel):
             raise HTTPException(status_code=404, detail="User not found")
 
         user = results[0][0]
+        print(user)
         if not verify_password(password, user.properties['password']):
             raise HTTPException(status_code=401, detail="Incorrect password")
 
         access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(
-            data={"sub": user},
+            data={"sub": username},
             expires_delta=access_token_expires
         )
 

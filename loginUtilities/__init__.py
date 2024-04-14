@@ -12,7 +12,7 @@ from warnings import warn
 
 
 def get_user(username: str):
-    query = f"MATCH (u:User:Person {{username: '{username}'}}) RETURN u"
+    query = f"MATCH (u:User {{username: '{username}'}}) RETURN u"
     print("Query: ", query)
     results = makeQuery(query, listOffIndexes=['u'])
     print(len(results))

@@ -59,8 +59,10 @@ async def searchUserPerson(properties: Dict[str, Any]):
 @read.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())], response_model=searchRelationshipsModel,
            response_model_exclude_unset=True)
 async def searchAffiliate(request: Request):
+    print("DADSASDA")
     try:
-        userId = request.state.user.properties['id']
+        userId = request.state.user.properties['userId']
+        print("User ID: ", userId)
         query = f"MATCH (u:User:Person {{'userId': {userId}}})-[r:AFFILIATE]-(a:User:Organization) RETURN r"
 
         results = makeQuery(query, listOffIndexes=['r'])

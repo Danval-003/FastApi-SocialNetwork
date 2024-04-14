@@ -190,10 +190,10 @@ async def create_affiliate(request: Request, af: affiliate):
         properties['affiliatedDate'] = datetime.date(datetime.now())
         typeR = 'AFFILIATE'
         userId = request.state.user.properties['userId']
-        organizationId = properties['idOrganization']
+        organizationName = properties['name']
 
         createRelationship(typeR=typeR, properties=properties, node1=NodeD(['User'], {'userId': userId}),
-                           node2=NodeD(['User'], {'userId': organizationId}))
+                           node2=NodeD(['User'], {'name': organizationName}))
 
         response_data = {'status': f'success to create affiliate with id {properties["idOrganization"]}'}
         return basicResponse(**response_data)

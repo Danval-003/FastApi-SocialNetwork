@@ -131,7 +131,7 @@ class loginModel(BaseModel):
 
 class affiliate(BaseModel):
     role: Optional[str] = Field(..., example="admin", description="Role of the affiliate")
-    idOrganization: str = Field(..., example="123", description="ID of the organization")
+    name: str = Field(..., example="123", description="ID of the organization")
 
 
 

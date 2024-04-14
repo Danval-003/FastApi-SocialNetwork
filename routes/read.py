@@ -63,7 +63,8 @@ async def searchAffiliate(request: Request):
     try:
         userId = request.state.user.properties['userId']
         print("User ID: ", userId)
-        query = f"MATCH (u:User:Person {{'userId': '{userId}'}})-[r:AFFILIATE]-(a:User:Organization) RETURN r"
+        prop = {'userId': userId}
+        query = f"MATCH (u:User:Person {format_properties(prop)})-[r:AFFILIATE]-(a:User:Organization) RETURN r"
         print(query)
         results = makeQuery(query, listOffIndexes=['r'])
 

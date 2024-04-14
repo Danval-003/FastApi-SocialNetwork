@@ -63,7 +63,7 @@ async def create_relationship(R: relationship):
 
 
 @create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
-async def create_user_person(U: user_person = Depends(), profile_image: UploadFile = None):
+async def create_user_person(U: user_person = Depends(), profile_image: Optional[UploadFile] = File(None)):
     print("ASDASDAD")
     try:
         query = f"MATCH (u:User:Person {format_properties({"username": U.username})}) RETURN u"

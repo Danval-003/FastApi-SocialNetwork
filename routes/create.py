@@ -127,7 +127,7 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
                 grid_file.write(file_data)
                 file_id = grid_file._id
 
-            properties['logo_image'] = origin + "multimedia/stream/" + str(file_id) + "/"
+            properties['profile_image'] = origin + "multimedia/stream/" + str(file_id) + "/"
 
         createNode(labels, properties, merge=True)
         response_data = {'status': f'success to create user Organization with id {properties['userId']}',

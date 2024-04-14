@@ -200,7 +200,7 @@ async def create_affiliate(request: Request, af: affiliate):
         createRelationship(typeR=typeR, properties=properties, node1=NodeD(['User'], {'userId': userId}),
                            node2=NodeD(['User'], {'name': organizationName}))
 
-        response_data = {'status': f'success to create affiliate with id {properties["idOrganization"]}'}
+        response_data = {'status': f'success to create affiliate with {organizationName}'}
         return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

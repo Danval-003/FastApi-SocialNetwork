@@ -74,11 +74,18 @@ async def searchAffiliate(request: Request):
         relations: List[relationShipModel] = []
 
         for r in results:
-            print(r[2])
-            relation = relationShipModel(type=r[1].type, properties=r[1].properties,
-                                         nodeTo=node(labels=r[0]['labels'],
-                                                     properties=r[0]['properties']),
-                                         nodeFrom=node(labels=r[2]['labels'], properties=r[2]['properties']))
+            print(r[1].type, r[1].properties)
+            print()
+            print(r[0].labels, r[0].properties)
+            print()
+            print(r[2].labels, r[2].properties)
+            print()
+            n = node(labels=r[0].labels, properties=r[0].properties)
+            s = node(labels=r[2].labels, properties=r[2].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
 
             print(relation)
             relations.append(relation)

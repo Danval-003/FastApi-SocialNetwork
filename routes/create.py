@@ -179,7 +179,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
 
 
 @create.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())])
-async def create_affiliate(request: Request, usernameOrganization: str):
+async def create_affiliate(request: Request, usernameOrganization: str, role: Optional[str]):
     try:
         userId = request.state.user.properties['userId']
         query = f"MATCH (u:User:Person {format_properties({'userId': userId})}) RETURN u"
@@ -192,7 +192,15 @@ async def create_affiliate(request: Request, usernameOrganization: str):
         if len(results) == 0:
             raise HTTPException(status_code=404, detail="Organization not found")
 
-        createRelationship(typeR='AFFILIATE', properties={}, node1=NodeD(['User'], {'userId': userId}),
+        props = {
+            'username': usernameOrganization,
+            'affiliatedDate': datetime.date(datetime.now())
+        }
+
+        if role is not None:
+            props['role'] = role
+
+        createRelationship(typeR='AFFILIATE', properties=props, node1=NodeD(['User'], {'userId': userId}),
                            node2=NodeD(['User'], {'username': usernameOrganization}))
         response_data = {'status': f'success to affiliate user {userId} with organization {usernameOrganization}'}
         return basicResponse(**response_data)

@@ -79,6 +79,8 @@ async def searchAffiliate(request: Request):
                                          nodeTo=node(labels=r[0].labels,
                                                      properties=r[0].properties),
                                          nodeFrom=node(labels=r[2].labels, properties=r[2].properties))
+
+            print(relation)
             relations.append(relation)
 
         return searchRelationshipsModel(status='success', relationships=relations)

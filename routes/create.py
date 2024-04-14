@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 import bcrypt
-from fastapi import APIRouter, HTTPException, UploadFile, Depends
+from fastapi import APIRouter, HTTPException, UploadFile, Depends, File
 from langdetect import detect
 from starlette.requests import Request
 from werkzeug.utils import secure_filename

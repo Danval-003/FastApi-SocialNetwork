@@ -74,12 +74,6 @@ async def searchAffiliate(request: Request):
         relations: List[relationShipModel] = []
 
         for r in results:
-            print(r[1].type, r[1].properties)
-            print()
-            print(r[0].labels, r[0].properties)
-            print()
-            print(r[2].labels, r[2].properties)
-            print()
             n = node(labels=r[0].labels, properties=r[0].properties)
             s = node(labels=r[2].labels, properties=r[2].properties)
 
@@ -88,6 +82,35 @@ async def searchAffiliate(request: Request):
                                          nodeFrom=n)
 
             print(relation)
+            relations.append(relation)
+
+        return searchRelationshipsModel(status='success', relationships=relations)
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+
+@read.post('/post/', response_model=searchRelationshipsModel, dependencies=[Depends(BearerAuthMiddleware())], response_model_exclude_unset=True)
+async def searchPost(request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        prop = {'userId': userId}
+        query = f"MATCH (u:User {format_properties(prop)})-[r:POSTED]->(p:Post) RETURN u, r, p"
+        results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
+
+        if len(results) == 0:
+            return searchRelationshipsModel(status='success', relationships=[])
+
+        relations: List[relationShipModel] = []
+
+        for r in results:
+            n = node(labels=r[0].labels, properties=r[0].properties)
+            s = node(labels=r[2].labels, properties=r[2].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
+
             relations.append(relation)
 
         return searchRelationshipsModel(status='success', relationships=relations)

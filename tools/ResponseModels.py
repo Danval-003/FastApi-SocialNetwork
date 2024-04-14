@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from tools import node
 
@@ -7,6 +7,7 @@ from tools import node
 class basicResponse(BaseModel):
     status: str
     operation: str = None
+    id: Optional[str] = None
     model_config = {
         "json_schema_extra": {
             "examples": [

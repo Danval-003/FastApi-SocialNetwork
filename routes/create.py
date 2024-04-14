@@ -92,7 +92,8 @@ async def create_user_person(profile_image: UploadFile = File(None), U: user_per
             properties['profile_image'] = origin + "multimedia/stream/" + str(file_id) + "/"
 
         createNode(labels, properties, merge=True)
-        response_data = {'status': f'success to create user person with id {properties['userId']}'}
+        response_data = {'status': f'success to create user person with id {properties['userId']}',
+                         'id': properties['userId']}
 
         return basicResponse(**response_data)
 
@@ -129,7 +130,8 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
             properties['logo_image'] = origin + "multimedia/stream/" + str(file_id) + "/"
 
         createNode(labels, properties, merge=True)
-        response_data = {'status': f'success to create user Organization with id {properties['userId']}'}
+        response_data = {'status': f'success to create user Organization with id {properties['userId']}',
+                         'id': properties['userId']}
 
         return basicResponse(**response_data)
 

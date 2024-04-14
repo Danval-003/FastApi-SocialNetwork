@@ -64,7 +64,7 @@ async def searchAffiliate(request: Request):
         userId = request.state.user.properties['userId']
         print("User ID: ", userId)
         prop = {'userId': userId}
-        query = f"MATCH (u:User:Person {format_properties(prop)})-[r:AFFILIATE]-(a:User:Organization) RETURN u, r, a"
+        query = f"MATCH (u:User:Person {format_properties(prop)})-[r:AFFILIATE]->(a:User:Organization) RETURN u, r, a"
         print(query)
         results = makeQuery(query, listOffIndexes=['u', 'r', 'a'])
 
@@ -74,11 +74,11 @@ async def searchAffiliate(request: Request):
         relations: List[relationShipModel] = []
 
         for r in results:
-            print(r[0].to_json())
+            print(r[2])
             relation = relationShipModel(type=r[1].type, properties=r[1].properties,
-                                         nodeTo=node(labels=r[0].labels,
-                                                     properties=r[0].properties),
-                                         nodeFrom=node(labels=r[2].labels, properties=r[2].properties))
+                                         nodeTo=node(labels=r[0]['labels'],
+                                                     properties=r[0]['properties']),
+                                         nodeFrom=node(labels=r[2]['labels'], properties=r[2]['properties']))
 
             print(relation)
             relations.append(relation)

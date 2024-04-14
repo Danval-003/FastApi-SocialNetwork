@@ -61,6 +61,7 @@ def transFormObject(obj):
         return NodeD(labels, properties)
     elif obj is not None:
         nodesR = [transFormObject(ls) for ls in obj.nodes]
+        print(nodesR)
         typeR = obj.type
         properties = dict(obj)
         return RelationshipD(typeR, properties, nodesR[0], nodesR[1])

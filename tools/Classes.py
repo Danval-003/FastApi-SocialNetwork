@@ -1,5 +1,8 @@
 from datetime import date
 from neo4j import graph
+from neo4j.time import Date
+from datetime import date
+
 
 
 class NodeD:
@@ -58,12 +61,20 @@ def transFormObject(obj):
     if isinstance(obj, graph.Node):
         labels = list(obj.labels)
         properties = dict(obj)
+
+        for key, value in properties.items():
+            if isinstance(value, Date):
+                properties[key] = value.iso_format()
+
         return NodeD(labels, properties)
     elif obj is not None:
         nodesR = [transFormObject(ls) for ls in obj.nodes]
         print(nodesR)
         typeR = obj.type
         properties = dict(obj)
+        for key, value in properties.items():
+            if isinstance(value, Date):
+                properties[key] = value.iso_format()
         return RelationshipD(typeR, properties, nodesR[0], nodesR[1])
 
     return obj

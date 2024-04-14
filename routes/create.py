@@ -171,7 +171,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
                            node2=NodeD(['Post'], {'postId': properties['postId']}))
 
         createHashtags(P.hashtags.split('#'), properties['postId'])
-        response_data = {'status': f'success to create post with id {properties["postId"]}'}
+        response_data = {'status': f'success to create post with id {properties["postId"]}', 'id': properties['postId']}
 
         return basicResponse(**response_data)
 
@@ -179,7 +179,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         return HTTPException(status_code=500, detail=str(e))
 
 
-@create.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())])
+@create.post('/affiliate/', dependencies=[Depends(BearerAuthMiddleware())])
 async def create_affiliate(request: Request, affiliateData: affiliate):
     try:
         usernameOrganization = affiliateData.usernameOrganization
@@ -212,7 +212,7 @@ async def create_affiliate(request: Request, affiliateData: affiliate):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@create.post('/follow', dependencies=[Depends(BearerAuthMiddleware())])
+@create.post('/follow/', dependencies=[Depends(BearerAuthMiddleware())])
 async def follow(request: Request, followData: follow):
     try:
         username: str = followData.username
@@ -260,7 +260,7 @@ async def follow(request: Request, followData: follow):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@create.post('/like', dependencies=[Depends(BearerAuthMiddleware())])
+@create.post('/like/', dependencies=[Depends(BearerAuthMiddleware())])
 async def like(request: Request, likeData: like):
     try:
         id_post = likeData.postId

@@ -121,14 +121,7 @@ class user_organization(BaseModel):
 class postNode(BaseModel):
     textContent: str = Field(..., example="Hello", description="Content of the post")
     isPrivate: bool = Field(..., example=False, description="Is the post private?")
-
-
-class hashtag(BaseModel):
-    name: str = Field(..., example="hello", description="Name of the hashtag")
-    postCount: int = Field(..., example=0, description="Number of posts")
-    creationDate: str = Field(..., example=str(datetime.date.today()), description="Date of creation")
-    country: str = Field(..., example="US", description="Country of the hashtag")
-    engagementRate: float = Field(..., example=0.0, description="Engagement rate of the hashtag")
+    hashtags: List[str] = Field(..., example=["hello"], description="List of hashtags")
 
 
 class loginModel(BaseModel):

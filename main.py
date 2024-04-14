@@ -1,5 +1,6 @@
 from typing import List
 
+from fastapi import HTTPException
 from fastapi.logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -7,10 +8,11 @@ from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
-from basics import app
+from basics import app, SECRET_KEY
 from routes import create, delete, read, update, loginUtilities
 from gridfs_routes import gridR
 from tools import makeQuery, node
+import ipinfo
 
 app.mount("/static", StaticFiles(directory=Path(__file__).parent.absolute() / "static"), name="static")
 app.include_router(create, prefix="/create", tags=["create"])
@@ -28,6 +30,8 @@ app.add_middleware(
     allow_methods=["*"],  # Permitir todos los métodos (GET, POST, etc.)
     allow_headers=["*"],  # Permitir todas las cabeceras
 )
+
+ipinfo_handler = ipinfo.getHandler(access_token=SECRET_KEY)
 
 
 @app.middleware("http")
@@ -55,8 +59,22 @@ async def log_requests(request: Request, call_next):
 
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World"}
+async def root(request: Request):
+    try:
+        # Obtenemos la dirección IP del cliente que realizó la solicitud
+        client_ip = request.client.host
+
+        # Obtenemos detalles de la dirección IP usando ipinfo
+        details = ipinfo_handler.getDetails(client_ip)
+
+        # Verificamos si se obtuvieron los detalles correctamente y si el país está disponible
+        country_name = "Desconocido"
+        if hasattr(details, 'country_name'):
+            country_name = details.country_name
+
+        return {"ip": client_ip, "country": country_name}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/hello/{name}")

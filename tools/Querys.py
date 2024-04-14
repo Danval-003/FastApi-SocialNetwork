@@ -71,10 +71,10 @@ def detachDeleteNode(properties=None, labels=None):
         session.run(cypher_query)
 
 
-def updateNode(labels: List[str], properties=None):
-    if properties is None:
-        properties = {}
+def updateNode(labels: List[str], oldProperties=None, newProperties=None):
+    if oldProperties is None:
+        oldProperties = {}
     with neo4j_driver.session() as session:
         cypher_query = f"MATCH (node{':' if len(labels) > 0 else ''}{':'.join(labels)}" \
-                       f" {format_properties(properties)}) SET node += {properties}"
+                       f" {format_properties(oldProperties)}) SET node += {format_properties(newProperties)}"
         session.run(cypher_query)

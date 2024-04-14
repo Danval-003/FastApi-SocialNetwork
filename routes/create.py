@@ -1,21 +1,20 @@
-import json
 import uuid
 from datetime import datetime
 from typing import List, Dict, Any
 
 import bcrypt
-from fastapi import APIRouter, HTTPException, File, UploadFile, Body, Form, Depends
+from fastapi import APIRouter, HTTPException, UploadFile, Depends
+from langdetect import detect
 from starlette.requests import Request
-
-from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
 from werkzeug.utils import secure_filename
 
-from tools import createNode, user_organization, user_person, postNode
 from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
-from langdetect import detect
+from tools import createNode, user_organization, user_person, postNode
+from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
 
 create = APIRouter()
+
 
 @create.post('/node', response_model=basicResponse)
 async def create_node(N: node):
@@ -65,7 +64,6 @@ async def create_relationship(R: relationship):
 @create.post('/user/person', response_model=basicResponse, response_model_exclude_unset=True)
 async def create_user_person(U: user_person = Depends(), profile_image: UploadFile = None):
     try:
-        print(U.dict())
         query = f"MATCH (u:User:Person {format_properties({"username": U.username})}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) > 0:
@@ -151,12 +149,7 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
 @create.post('/post/', dependencies=[Depends(BearerAuthMiddleware())])
 async def makePost(request: Request, P: postNode = Depends(), multimedia: List[UploadFile] = None):
     try:
-        print("Hola mundo")
-        prop = request.state.user.properties
-        print(prop)
         userID = request.state.user.properties['userId']
-        print(request.state.user)
-        print(userID)
         properties: Dict[str, Any] = P.dict()
         labels: List[str] = ['Post']
         properties['postId'] = str(uuid.uuid4())
@@ -178,6 +171,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
                 file_id = grid_file._id
 
             properties['multimedia'].append(origin + "multimedia/stream/" + str(file_id) + "/")
+
 
         createNode(labels, properties, merge=True)
         createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': userID}),

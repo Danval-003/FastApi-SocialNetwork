@@ -263,7 +263,7 @@ async def follow(request: Request, followData: follow):
 @create.post('/like/', dependencies=[Depends(BearerAuthMiddleware())])
 async def like(request: Request, likeData: like):
     try:
-        id_post = likeData.postId
+        id_post = likeData.idPost
         positive = likeData.positive
         userId = request.state.user.properties['userId']
         post = {'postId': id_post}

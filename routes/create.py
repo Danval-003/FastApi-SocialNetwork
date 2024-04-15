@@ -197,6 +197,8 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         properties['likes'] = 0
         properties['views'] = 0
         properties['hashtags'] = [tag.lower().strip() for tag in P.hashtags.split('#') if tag.lower().strip() != '']
+        if 'location' in request.state.user.properties:
+            properties['location'] = request.state.user.properties['location']
 
         if multimedia is None:
             multimedia = []

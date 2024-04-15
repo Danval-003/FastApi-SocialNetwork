@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
-from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, save, commentNode
+from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, onlyIdPost, commentNode
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
 from otherOperations import createHashtags
 
@@ -60,8 +60,6 @@ async def create_relationship(R: relationship):
         return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
-
-
 
 
 @create.post('/user/person/', response_model=basicResponse, response_model_exclude_unset=True)
@@ -307,7 +305,7 @@ async def likesC(request: Request, likeData: like):
 
 
 @create.post('/saves/', dependencies=[Depends(BearerAuthMiddleware())])
-async def save(request: Request, saveData: save):
+async def save(request: Request, saveData: onlyIdPost):
     try:
         userId = request.state.user.properties['userId']
         postId = saveData.idPost

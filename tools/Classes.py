@@ -67,6 +67,8 @@ def transFormObject(obj):
                 properties[key] = value.iso_format()
 
         return NodeD(labels, properties)
+    elif isinstance(obj, str) or isinstance(obj, int):
+        return obj
     elif obj is not None:
         nodesR = [transFormObject(ls) for ls in obj.nodes]
         print(nodesR)

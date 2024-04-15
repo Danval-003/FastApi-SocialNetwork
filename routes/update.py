@@ -80,6 +80,27 @@ async def update_profile_image(newProfileImage: UploadFile, request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@update.post('/user/affiliate/', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def update_user(Up: UpdateModels.updateRelations, request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        orgUsername = Up.username
+
+        query = f"MATCH (n:User {format_properties({'userId': userId})}) - [r:AFFILIATE] -> (o:User:Organization {format_properties({'username': orgUsername})}) "
+
+        if Up.role == '':
+            query += "REMOVE r.role"
+        else:
+            query += f"SET r.role = '{Up.role}'"
+
+        query += " RETURN n"
+        makeQuery(query, listOffIndexes=['n'])
+        return basicResponse(status='success to update user')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Función para hashear una contraseña y generar una sal
 def hash_password(password):
     # Generar una sal aleatoria

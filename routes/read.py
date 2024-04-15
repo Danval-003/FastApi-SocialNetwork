@@ -127,7 +127,7 @@ async def recommendPost(request: Request):
         query = f"""
         // Obtener interacciones de un usuario específico
         MATCH (u:User {format_properties({'userId': userId})})-[interaction]->(p:Post)
-        WHERE type(interaction) IN ['LIKES', 'COMMENTS', 'SAVES']
+        WHERE type(interaction) IN ['LIKE', 'COMMENTS', 'SAVED']
         WITH u, p, count(interaction) AS strength
         
         // Calcular similitud entre posts basada en las etiquetas y propiedades
@@ -139,7 +139,7 @@ async def recommendPost(request: Request):
         WITH p1, p2
         
         // Recomendar posts similares y recientes a los que el usuario ha interactuado
-        MATCH (u)-[:LIKES|COMMENTS|SAVES]->(p:Post)
+        MATCH (u)-[:LIKE|COMMENTS|SAVED]->(p:Post)
         WITH u, p
         MATCH (p)-[:SIMILAR_TO]->(recommended:Post)
         WHERE NOT (u)-[:LIKES|COMMENTS|SAVES]->(recommended) 

@@ -17,6 +17,16 @@ from otherOperations import createHashtags
 create = APIRouter()
 
 
+# Función para hashear una contraseña y generar una sal
+def hash_password(password):
+    # Generar una sal aleatoria
+    salt = bcrypt.gensalt()
+    # Hashear la contraseña con la sal
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    hashed_password_str = hashed_password.hex()
+    return hashed_password_str  # Devuelve el hash como una cadena hexadecimal
+
+
 @create.post('/node', response_model=basicResponse)
 async def create_node(N: node):
     try:
@@ -62,6 +72,28 @@ async def create_relationship(R: relationship):
         return HTTPException(status_code=500, detail=str(e))
 
 
+def originalOrg():
+    originalOrg = user_organization(name='org', password=hash_password('123'), language='es', isVerified=False,
+                                    username='neosns', website='https://org.com', contact='contact', orgType='IT')
+
+    properties: Dict[str, Any] = originalOrg.dict()
+    properties['profile_image'] = origin + "multimedia/stream/661995a854e08ee44bee3bda/"
+    properties['userId'] = str(uuid.uuid4())
+    properties['password'] = hash_password(properties['password'])
+    properties['resgisterDate'] = str(datetime.date(datetime.now()))
+    properties['followCount'] = 0
+    properties['followerCount'] = 0
+
+    query = f"MATCH (u:User:Organization {format_properties({'username': 'neosns'})}) RETURN u"
+    results = makeQuery(query, listOffIndexes=['u'])
+
+    if len(results) == 0:
+        createNode(['User', 'Organization'], properties, merge=True)
+        return properties['userId']
+    else:
+        return results[0][0].properties['userId']
+
+
 @create.post('/user/person/', response_model=basicResponse, response_model_exclude_unset=True)
 async def create_user_person(profile_image: UploadFile = File(None), U: user_person = Depends()):
     try:
@@ -94,6 +126,12 @@ async def create_user_person(profile_image: UploadFile = File(None), U: user_per
         createNode(labels, properties, merge=True)
         response_data = {'status': f'success to create user person with id {properties['userId']}',
                          'id': properties['userId']}
+
+        orgId = originalOrg()
+
+        createRelationship(typeR='AFFILIATE', properties={'role': 'member', 'affiliatedDate': str(datetime.date(datetime.now())), "name":""},
+                           node1=NodeD(['User'], {'userId': properties['userId']}),
+                           node2=NodeD(['User'], {'userId': orgId}))
 
         return basicResponse(**response_data)
 
@@ -132,6 +170,14 @@ async def create_user_organization(U: user_organization = Depends(), profile_ima
         createNode(labels, properties, merge=True)
         response_data = {'status': f'success to create user Organization with id {properties['userId']}',
                          'id': properties['userId']}
+
+        orgId = originalOrg()
+
+        createRelationship(typeR='FOLLOW',
+                           properties={'role': 'member', 'affiliatedDate': str(datetime.date(datetime.now())),
+                                       "name": ""},
+                           node1=NodeD(['User'], {'userId': properties['userId']}),
+                           node2=NodeD(['User'], {'userId': orgId}))
 
         return basicResponse(**response_data)
 
@@ -253,6 +299,10 @@ async def follow(request: Request, followData: follow):
             queryToUpdate = f"MATCH (u:User {format_properties(otherUser)})- [r:FOLLOW] -> (o:User {format_properties({'userId': userId})}) " \
                             f"SET r.isMutual = true, r.weight={weight} RETURN r"
             makeQuery(queryToUpdate, listOffIndexes=['r'])
+            queryToUpdate = f"MATCH (u:User:Person {format_properties({'userId': userId})})" \
+                            f"SET u.isMutual = true RETURN u"
+
+
 
         response_data = {'status': f'success to follow {otherUser}'}
         return basicResponse(**response_data)
@@ -381,13 +431,3 @@ async def createComment(comment: commentNode):
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
-
-
-# Función para hashear una contraseña y generar una sal
-def hash_password(password):
-    # Generar una sal aleatoria
-    salt = bcrypt.gensalt()
-    # Hashear la contraseña con la sal
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    hashed_password_str = hashed_password.hex()
-    return hashed_password_str  # Devuelve el hash como una cadena hexadecimal

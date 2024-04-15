@@ -19,3 +19,22 @@ class updateUser(BaseModel):
             ]
         }
     }
+
+
+class updateRelations(BaseModel):
+    username: str = Field(..., example="Alice")
+    role: Optional[str] = Field('', example="admin")
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "properties": {
+                        "name": "Alice",
+                        "age": 33,
+                    },
+                    "labels": ["Person"]
+                }
+            ]
+        }
+    }

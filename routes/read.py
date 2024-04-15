@@ -232,7 +232,7 @@ async def getAllPostsBySearch(limits: searchLIMIT):
         # Agregar el resto de la consulta Cypher
         query += """
         RETURN p
-        ORDER BY p.createDate
+        ORDER BY p.createDate DESC
         """
 
         # Agregar SKIP y LIMIT si se proporcionan valores

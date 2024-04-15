@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
-from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like
+from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, save, commentNode
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
 from otherOperations import createHashtags
 
@@ -305,7 +305,7 @@ async def likesC(request: Request, likeData: like):
 
 
 @create.post('/saves/', dependencies=[Depends(BearerAuthMiddleware())])
-async def save(request: Request, saveData: like):
+async def save(request: Request, saveData: save):
     try:
         userId = request.state.user.properties['userId']
         postId = saveData.idPost
@@ -336,6 +336,51 @@ async def save(request: Request, saveData: like):
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 
+
+@create.post('/comments/', dependencies=[Depends(BearerAuthMiddleware())])
+async def createComment(comment: commentNode):
+    try:
+        properties = {}
+        upperPostID = comment.idDepend
+        properties['commentId'] = str(uuid.uuid4())
+        properties['commentText'] = comment.textContent
+        properties['likes'] = 0
+        labelsToResponse = []
+        props = {'creationDate': datetime.date(datetime.now()), 'lastEdit': datetime.date(datetime.now())}
+
+        query = f"MATCH (p:Post {format_properties({'postId': upperPostID})}) <- [:POSTS]- (u:User) RETURN p, u"
+        results = makeQuery(query, listOffIndexes=['p'])
+        toResp = {}
+        if len(results) == 0:
+            query = f"MATCH (p:Comment {format_properties({'postId': upperPostID})}) <- [:POSTS]- (u:User) RETURN p, u"
+            results = makeQuery(query, listOffIndexes=['p'])
+            if len(results) == 0:
+                raise HTTPException(status_code=404, detail="Post not found")
+            commentTo = results[0][0].properties['authors']
+            authorPost = results[0][1].properties['userId']
+            labelsToResponse.append('Comment')
+            properties['authors'] = commentTo + [authorPost]
+            props['authorId'] = authorPost
+            toResp = {'commentId': properties['commentId']}
+
+        else:
+            authorPost = results[0][1].properties['userId']
+            labelsToResponse.append('Post')
+            properties['authors'] = [authorPost]
+            props['authorId'] = authorPost
+            toResp = {'postId': upperPostID}
+
+        createNode(['Comment'], properties, merge=True)
+        createRelationship(typeR='POSTS', properties=props, node2=NodeD(labelsToResponse, toResp),
+                           node1=NodeD(['Comment'], {'commentId': properties['commentId']}))
+
+        response_data = {'status': f'success to create comment with id {properties["commentId"]}'}
+
+        return basicResponse(**response_data)
+
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
 
 
 # Función para hashear una contraseña y generar una sal

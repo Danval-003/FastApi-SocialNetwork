@@ -159,3 +159,11 @@ class searchLIMIT(BaseModel):
     skip: Optional[int] = Field(0, example=0, description="Skip the first n results")
     limit: Optional[int] = Field(10, example=10, description="Limit the results to n")
 
+
+class commentNode(BaseModel):
+    textContent: str = Field(..., example="Hello", description="Content of the post")
+    isPrivate: bool = Field(..., example=False, description="Is the post private?")
+    language: str = Field(..., example="es", description="Language of the user")
+    idDepend: str = Field(..., example="123", description="ID of the post")
+
+

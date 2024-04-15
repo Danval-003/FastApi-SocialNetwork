@@ -185,12 +185,24 @@ async def mySaves(request: Request):
 @read.get('/getAllPosts/')
 async def getAllPosts(request: Request):
     try:
-        query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, p LIMIT 30"
+        query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, r, p LIMIT 30"
         results = makeQuery(query, listOffIndexes=['u', 'p'])
         if len(results) == 0:
-            return searchNodesModel(status='success', nodes=[])
+            return searchRelationshipsModel(status='success', relationships=[])
 
-        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+        relations: List[relationShipModel] = []
+
+        for r in results:
+            n = node(labels=r[0].labels, properties=r[0].properties)
+            s = node(labels=r[2].labels, properties=r[2].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
+
+            relations.append(relation)
+
+        return searchRelationshipsModel(status='success', relationships=relations)
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

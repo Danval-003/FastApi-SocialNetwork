@@ -261,7 +261,7 @@ async def follow(request: Request, followData: follow):
 
 
 @create.post('/like/', dependencies=[Depends(BearerAuthMiddleware())])
-async def like(request: Request, likeData: like):
+async def likesC(request: Request, likeData: like):
     try:
         id_post = likeData.idPost
         positive = likeData.positive
@@ -302,6 +302,40 @@ async def like(request: Request, likeData: like):
         return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@create.post('/saves/', dependencies=[Depends(BearerAuthMiddleware())])
+async def save(request: Request, saveData: like):
+    try:
+        userId = request.state.user.properties['userId']
+        postId = saveData.idPost
+        post = {'postId': postId}
+
+        query = f"MATCH (u:User)-[r:POSTED]->(p:Post {format_properties(post)}) RETURN u"
+        results = makeQuery(query, listOffIndexes=['u'])
+        if len(results) == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        author = results[0][0]
+
+        authorId = author.properties['userId']
+
+        query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:SAVED]->(p:Post {format_properties(post)}) RETURN r"
+        results = makeQuery(query, listOffIndexes=['r'])
+        if len(results) > 0:
+            raise HTTPException(status_code=400, detail="You already saved this post")
+
+        user = NodeD(['User'], {'userId': userId})
+        post = NodeD(['Post'], {'postId': postId})
+        props = {'saveDate': datetime.date(datetime.now()), 'authorId': authorId, 'postId': postId}
+
+        createRelationship(typeR='SAVED', properties=props, node1=user, node2=post)
+        response_data = {'status': f'success to save post {postId}'}
+
+        return basicResponse(**response_data)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
 
 
 # Función para hashear una contraseña y generar una sal

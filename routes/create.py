@@ -300,9 +300,12 @@ async def follow(request: Request, followData: follow):
                             f"SET r.isMutual = true, r.weight={weight} RETURN r"
             makeQuery(queryToUpdate, listOffIndexes=['r'])
             queryToUpdate = f"MATCH (u:User:Person {format_properties({'userId': userId})})" \
-                            f"SET u.isMutual = true RETURN u"
+                            f"SET u.mutualCount = u.mutualCount+1 RETURN u"
 
-
+            makeQuery(queryToUpdate, listOffIndexes=['u'])
+            queryToUpdate = f"MATCH (u:User:Person {format_properties(otherUser)})" \
+                            f"SET u.mutualCount = u.mutualCount+1 RETURN u"
+            makeQuery(queryToUpdate, listOffIndexes=['u'])
 
         response_data = {'status': f'success to follow {otherUser}'}
         return basicResponse(**response_data)

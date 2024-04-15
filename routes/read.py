@@ -200,7 +200,7 @@ async def mySaves(request: Request):
 async def getAllPosts():
     try:
         query = (f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, r, p "
-                 f" ORDER BY p.createDate DESC LIMIT 30")
+                 f" ORDER BY r.creationDate DESC LIMIT 30")
         results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
         if len(results) == 0:
             return searchRelationshipsModel(status='success', relationships=[])
@@ -245,7 +245,7 @@ async def getAllPostsBySearch(limits: searchLIMIT):
         # Agregar el resto de la consulta Cypher
         query += """
         RETURN u,r,p
-        ORDER BY p.createDate DESC
+        ORDER BY r.creationDate DESC
         """
 
         # Agregar SKIP y LIMIT si se proporcionan valores

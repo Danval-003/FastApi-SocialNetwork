@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
-from tools import makeQuery, format_properties
+from tools import makeQuery, format_properties, searchLIMIT
 from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from loginUtilities import BearerAuthMiddleware
 
 read = APIRouter()
@@ -210,18 +210,38 @@ async def getAllPosts():
         return HTTPException(status_code=500, detail=str(e))
 
 
-@read.get('/getPost/bySearch/{search}/{skip}/{limit}')
-async def getAllPosts(search: str, skip: int = 0, limit: int = 10):
+@read.post('/getPost/bySearch/{search}/')
+async def getAllPostsBySearch(limits: searchLIMIT):
     try:
-        query = f"""
-        MATCH (p:Post)
-        WHERE p.textContent CONTAINS '{search.replace("'", r"\'")}' OR
-              (EXISTS {{MATCH (p)-[:TAGS]->(h:Hashtag) WHERE h.name = '{search.replace("'", r"\'")}'}})
+        search = limits.search
+        skip = limits.skip
+        limit = limits.limit
+        # Construir la parte principal de la consulta Cypher
+        query = "MATCH (p:Post)"
+
+        # Construir la condición WHERE en función de la búsqueda
+        where_conditions = []
+        if search:
+            where_conditions.append(f"p.textContent CONTAINS '{search.replace("'", r'\\\'')}'")
+            where_conditions.append(
+                f"(EXISTS {{MATCH (p)-[:TAGS]->(h:Hashtag) WHERE h.name = '{search.replace("'", r'\\\'')}'}})")
+
+        if where_conditions:
+            query += " WHERE " + " OR ".join(where_conditions)
+
+        # Agregar el resto de la consulta Cypher
+        query += """
         RETURN p
         ORDER BY p.createDate
-        SKIP {skip}  // Saltar los primeros 10 resultados (0-indexed, por lo tanto, 9 para empezar desde el décimo)
-        LIMIT {limit}
         """
+
+        # Agregar SKIP y LIMIT si se proporcionan valores
+        if skip is not None:
+            query += f"\nSKIP {skip}"
+        if limit is not None:
+            query += f"\nLIMIT {limit}"
+
+        # Ejecutar la consulta Cypher y procesar los resultados
         results = makeQuery(query, listOffIndexes=['p'])
         if len(results) == 0:
             return searchNodesModel(status='success', nodes=[])
@@ -229,4 +249,4 @@ async def getAllPosts(search: str, skip: int = 0, limit: int = 10):
         return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
 
     except Exception as e:
-        return HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))

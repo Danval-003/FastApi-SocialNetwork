@@ -151,4 +151,11 @@ class like(BaseModel):
     idPost: str = Field(..., example="123", description="ID of the post")
     positive: Optional[bool] = Field(..., example=True, description="Positive or negative like")
 
+class save(BaseModel):
+    idPost: str = Field(..., example="123", description="ID of the post")
+
+class searchLIMIT(BaseModel):
+    search: Optional[str] = Field('', example="Dinamo", description="Search query")
+    skip: Optional[int] = Field(0, example=0, description="Skip the first n results")
+    limit: Optional[int] = Field(10, example=10, description="Limit the results to n")
 

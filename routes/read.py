@@ -90,7 +90,8 @@ async def searchAffiliate(request: Request):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@read.post('/post/', response_model=searchRelationshipsModel, dependencies=[Depends(BearerAuthMiddleware())], response_model_exclude_unset=True)
+@read.post('/post/', response_model=searchRelationshipsModel, dependencies=[Depends(BearerAuthMiddleware())],
+           response_model_exclude_unset=True)
 async def searchPost(request: Request):
     try:
         userId = request.state.user.properties['userId']
@@ -182,8 +183,9 @@ async def mySaves(request: Request):
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 
+
 @read.get('/getAllPosts/')
-async def getAllPosts(request: Request):
+async def getAllPosts():
     try:
         query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, r, p LIMIT 30"
         results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
@@ -203,6 +205,28 @@ async def getAllPosts(request: Request):
             relations.append(relation)
 
         return searchRelationshipsModel(status='success', relationships=relations)
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+
+@read.get('/getPost/bySearch/{search}/{skip}/{limit}')
+async def getAllPosts(search: str, skip: int = 0, limit: int = 10):
+    try:
+        query = f"""
+        MATCH (p:Post)
+        WHERE p.textContent CONTAINS '{search.replace("'", r"\'")}' OR
+              (EXISTS {{MATCH (p)-[:TAGS]->(h:Hashtag) WHERE h.name = '{search.replace("'", r"\'")}'}})
+        RETURN p
+        ORDER BY p.createDate
+        SKIP {skip}  // Saltar los primeros 10 resultados (0-indexed, por lo tanto, 9 para empezar desde el décimo)
+        LIMIT {limit}
+        """
+        results = makeQuery(query, listOffIndexes=['p'])
+        if len(results) == 0:
+            return searchNodesModel(status='success', nodes=[])
+
+        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

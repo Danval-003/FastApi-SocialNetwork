@@ -151,3 +151,20 @@ async def recommendPost(request: Request):
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@read.post('/mylikes/', dependencies=[Depends(BearerAuthMiddleware())])
+async def myLikes(request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:LIKES]->(p:Post) RETURN p"
+        results = makeQuery(query, listOffIndexes=['p'])
+        if len(results) == 0:
+            return searchNodesModel(status='success', nodes=[])
+
+        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+

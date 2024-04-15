@@ -185,7 +185,7 @@ async def mySaves(request: Request):
 @read.get('/getAllPosts/')
 async def getAllPosts(request: Request):
     try:
-        query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, p"
+        query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, p LIMIT 30"
         results = makeQuery(query, listOffIndexes=['u', 'p'])
         if len(results) == 0:
             return searchNodesModel(status='success', nodes=[])

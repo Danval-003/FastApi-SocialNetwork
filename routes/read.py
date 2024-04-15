@@ -217,7 +217,7 @@ async def getAllPostsBySearch(limits: searchLIMIT):
         skip = limits.skip
         limit = limits.limit
         # Construir la parte principal de la consulta Cypher
-        query = "MATCH (p:Post)"
+        query = "MATCH (p:Post) <-[r:POSTED]- (u:User)"
 
         # Construir la condición WHERE en función de la búsqueda
         where_conditions = []
@@ -231,7 +231,7 @@ async def getAllPostsBySearch(limits: searchLIMIT):
 
         # Agregar el resto de la consulta Cypher
         query += """
-        RETURN p
+        RETURN u,r,p
         ORDER BY p.createDate DESC
         """
 
@@ -242,11 +242,24 @@ async def getAllPostsBySearch(limits: searchLIMIT):
             query += f"\nLIMIT {limit}"
 
         # Ejecutar la consulta Cypher y procesar los resultados
-        results = makeQuery(query, listOffIndexes=['p'])
-        if len(results) == 0:
-            return searchNodesModel(status='success', nodes=[])
+        results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
 
-        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+        relations: List[relationShipModel] = []
+
+        if len(results) == 0:
+            return searchRelationshipsModel(status='success', relationships=[])
+
+        for r in results:
+            n = node(labels=r[0].labels, properties=r[0].properties)
+            s = node(labels=r[2].labels, properties=r[2].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
+
+            relations.append(relation)
+
+        return searchRelationshipsModel(status='success', relationships=relations)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

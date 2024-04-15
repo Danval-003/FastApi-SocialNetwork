@@ -29,7 +29,7 @@ async def login(loginInfo: loginModel):
         if not verify_password(password, user.properties['password']):
             return HTTPException(status_code=401, detail="Incorrect password")
 
-        access_token_expires = timedelta(minutes=30)
+        access_token_expires = timedelta(minutes=300)
         access_token = create_access_token(
             data={"sub": username},
             expires_delta=access_token_expires

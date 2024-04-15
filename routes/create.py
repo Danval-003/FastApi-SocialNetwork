@@ -212,8 +212,14 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
 
             properties['multimedia'].append(origin + "multimedia/stream/" + str(file_id) + "/")
 
+        props = {
+            'creationDate': datetime.date(datetime.now()),
+            'lastEdit': datetime.date(datetime.now()),
+            'hashtags': properties['hashtags']
+        }
+
         createNode(labels, properties, merge=True)
-        createRelationship(typeR='POSTED', properties={}, node1=NodeD(['User'], {'userId': userID}),
+        createRelationship(typeR='POSTED', properties=props, node1=NodeD(['User'], {'userId': userID}),
                            node2=NodeD(['Post'], {'postId': properties['postId']}))
 
         createHashtags(P.hashtags.split('#'), properties['postId'])

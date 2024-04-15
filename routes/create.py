@@ -307,6 +307,8 @@ async def follow(request: Request, followData: follow):
                             f"SET u.mutualCount = u.mutualCount+1 RETURN u"
             makeQuery(queryToUpdate, listOffIndexes=['u'])
 
+        updateQueryFollow = f"MATCH (u:User {format_properties({'userId': userId})}) - [r:FOLLOW] -> (o:User {format_properties(otherUser)}) " \
+                            f"SET u.followCount = u.followCount+1, o.followerCount =o.followerCount+1 RETURN r"
         response_data = {'status': f'success to follow {otherUser}'}
         return basicResponse(**response_data)
     except Exception as e:
@@ -350,6 +352,9 @@ async def likesC(request: Request, likeData: like):
             'authorImage': authorImage,
             'positive': positive if positive is not None else True
         }, node1=user, node2=post)
+
+        query = f"MATCH (p:Post {format_properties(post)}) SET p.likes = p.likes+1 RETURN p"
+        makeQuery(query, listOffIndexes=['p'])
 
         response_data = {'status': f'success to like post {id_post}'}
         return basicResponse(**response_data)

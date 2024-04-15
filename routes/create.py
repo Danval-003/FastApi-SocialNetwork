@@ -247,6 +247,12 @@ async def create_affiliate(request: Request, affiliateData: affiliate):
         if len(results) == 0:
             raise HTTPException(status_code=404, detail="Organization not found")
 
+        query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:AFFILIATE]->(o:User {format_properties({'name': usernameOrganization})}) RETURN r"
+
+        results = makeQuery(query, listOffIndexes=['r'])
+        if len(results) > 0:
+            raise HTTPException(status_code=400, detail="You already affiliate with this organization")
+
         props = {
             'name': usernameOrganization,
             'affiliatedDate': datetime.date(datetime.now())

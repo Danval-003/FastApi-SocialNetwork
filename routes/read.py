@@ -173,12 +173,24 @@ async def myLikes(request: Request):
 async def mySaves(request: Request):
     try:
         userId = request.state.user.properties['userId']
-        query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:SAVED]->(p:Post) RETURN p"
+        query = (f"MATCH (u:User {format_properties({'userId': userId})})"
+                 f"-[r:SAVED]->(p:Post)<-[r:POSTED]->(u2:User) RETURN p,r,u2")
         results = makeQuery(query, listOffIndexes=['p'])
         if len(results) == 0:
             return searchNodesModel(status='success', nodes=[])
 
-        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+        relations: List[relationShipModel] = []
+
+        for r in results:
+            n = node(labels=r[2].labels, properties=r[2].properties)
+            s = node(labels=r[0].labels, properties=r[0].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
+
+            relations.append(relation)
+        return searchRelationshipsModel(status='success', relationships=relations)
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

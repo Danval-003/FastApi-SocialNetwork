@@ -182,4 +182,15 @@ async def mySaves(request: Request):
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 
+@read.get('/getAllPosts/')
+async def getAllPosts(request: Request):
+    try:
+        query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, p"
+        results = makeQuery(query, listOffIndexes=['u', 'p'])
+        if len(results) == 0:
+            return searchNodesModel(status='success', nodes=[])
 
+        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))

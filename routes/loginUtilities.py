@@ -22,12 +22,12 @@ async def login(loginInfo: loginModel):
         query = f"MATCH (u:User {{username: '{username}'}}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) == 0:
-            raise HTTPException(status_code=404, detail="User not found")
+            return HTTPException(status_code=404, detail="User not found")
 
         user = results[0][0]
         print(user)
         if not verify_password(password, user.properties['password']):
-            raise HTTPException(status_code=401, detail="Incorrect password")
+            return HTTPException(status_code=401, detail="Incorrect password")
 
         access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(

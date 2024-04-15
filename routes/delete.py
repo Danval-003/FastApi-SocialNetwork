@@ -45,3 +45,18 @@ async def delete_like(postInfo: relationPost, request: Request):
         return basicResponse(status='success to delete like')
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@delete.post('/delete/post', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def delete_like(request: Request):
+    try:
+        userID = request.state.user.properties['userId']
+        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:POSTED]->(p:Post) DELETE p"
+        with neo4j_driver.session() as session:
+            session.run(query)
+
+        return basicResponse(status='success to delete like')
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+

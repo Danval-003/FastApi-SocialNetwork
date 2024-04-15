@@ -87,3 +87,15 @@ def updateNode(labels: List[str], oldProperties=None, newProperties=None):
         cypher_query = f"MATCH (node{':' if len(labels) > 0 else ''}{':'.join(labels)}" \
                        f" {format_properties(oldProperties)}) SET node += {format_properties(newProperties)}"
         session.run(cypher_query)
+
+
+def countLikes(idPost):
+    query = f"MATCH (p:Post {{postId: '{idPost}'}})<-[r:LIKE]-()" \
+            """
+            WITH p, COUNT(r) AS num_relations
+            SET p.likes = num_relations
+            RETURN n"""
+    results = makeQuery(query, listOffIndexes=['likes'])
+    return results[0][0]
+
+

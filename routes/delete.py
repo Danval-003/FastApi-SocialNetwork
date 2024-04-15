@@ -5,7 +5,7 @@ from starlette.requests import Request
 from basics import neo4j_driver
 from loginUtilities import BearerAuthMiddleware
 from fastapi import APIRouter, HTTPException, Depends
-from tools import detachDeleteNode, makeQuery
+from tools import detachDeleteNode, makeQuery, countLikes
 from tools import node, basicResponse, relationPost, format_properties
 
 delete = APIRouter()
@@ -42,6 +42,7 @@ async def delete_like(postInfo: relationPost, request: Request):
         with neo4j_driver.session() as session:
             session.run(query)
 
+        countLikes(postInfo.idPost)
         return basicResponse(status='success to delete like')
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

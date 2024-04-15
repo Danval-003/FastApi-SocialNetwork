@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
 from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, onlyIdPost, commentNode
-from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties
+from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties, countLikes
 from otherOperations import createHashtags
 
 create = APIRouter()
@@ -371,6 +371,7 @@ async def likesC(request: Request, likeData: like):
         makeQuery(query, listOffIndexes=['p'])
 
         response_data = {'status': f'success to like post {id_post}'}
+        countLikes(id_post)
         return basicResponse(**response_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

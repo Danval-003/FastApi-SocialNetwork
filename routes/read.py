@@ -186,7 +186,7 @@ async def mySaves(request: Request):
 async def getAllPosts(request: Request):
     try:
         query = f"MATCH (u:User)-[r:POSTED]->(p:Post) RETURN u, r, p LIMIT 30"
-        results = makeQuery(query, listOffIndexes=['u', 'p'])
+        results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
         if len(results) == 0:
             return searchRelationshipsModel(status='success', relationships=[])
 

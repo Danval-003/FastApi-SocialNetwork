@@ -3,6 +3,7 @@ from datetime import datetime
 from tools import makeQuery, createNode, createRelationship, format_properties, NodeD
 from typing import List, Dict, Any
 import uuid
+import random
 
 
 def createHashtags(hashtags: List[str], idPost: str):
@@ -20,7 +21,7 @@ def createHashtags(hashtags: List[str], idPost: str):
                 'idHashtag': idTag,
                 'postCount': 1,
                 'creationDate': datetime.date(datetime.now()),
-                'engagementRate': 0
+                'engagementRate': random.random() * 100
             }
             createNode(['Hashtag'], basicProperties)
 

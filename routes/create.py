@@ -216,8 +216,8 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
             properties['multimedia'].append(origin + "multimedia/stream/" + str(file_id) + "/")
 
         props = {
-            'creationDate': datetime.now(),
-            'lastEdit': datetime.now(),
+            'creationDate': datetime.date(datetime.now()),
+            'lastEdit': datetime.date(datetime.now()),
             'hashtags': properties['hashtags']
         }
 

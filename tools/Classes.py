@@ -1,5 +1,7 @@
 import datetime
 from datetime import date
+
+import neo4j.time
 from neo4j import graph
 from neo4j.time import Date
 from datetime import date
@@ -79,6 +81,8 @@ def transFormObject(obj):
         properties = dict(obj)
         for key, value in properties.items():
             if isinstance(value, Date):
+                properties[key] = value.iso_format()
+            if isinstance(value, neo4j.time.DateTime):
                 properties[key] = value.iso_format()
         return RelationshipD(typeR, properties, nodesR[0], nodesR[1])
 

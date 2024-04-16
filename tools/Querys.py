@@ -31,6 +31,7 @@ def createRelationship(node1: NodeD, node2: NodeD, typeR: str, properties=None, 
                            f"MATCH (b{':' if len(node2.labels) > 0 else ''}{':'.join(node2.labels)} " \
                            f"{format_properties(node2.properties)}) " \
                            f"MERGE (a)-[r:{typeR} {format_properties(properties)}]->(b)"
+        print(cypher_query)
         session.run(cypher_query)
 
 

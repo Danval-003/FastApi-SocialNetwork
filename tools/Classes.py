@@ -53,9 +53,9 @@ def format_properties(properties):
         if isinstance(val, float):
             return str(val)
         if isinstance(val, date):
-            return f"date('{val}')"
-        if isinstance(val, datetime.datetime):
-            return f"datetime('{val.strftime("%Y-%m-%d %H:%M:%S")}')"
+            return f"datetime({{epochMillis: apoc.date.parse('{val.strftime('%Y-%m-%d %H:%M:%S')}', 'ms', 'yyyy-MM-dd HH:mm:ss') }})"
+        elif isinstance(val, datetime.datetime):
+            return f"datetime({{epochMillis: apoc.date.parse('{val.strftime('%Y-%m-%d %H:%M:%S')}', 'ms', 'yyyy-MM-dd HH:mm:ss') }})"
 
         return str(val)
 

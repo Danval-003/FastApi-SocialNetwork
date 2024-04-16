@@ -6,7 +6,7 @@ from basics import neo4j_driver
 from loginUtilities import BearerAuthMiddleware
 from fastapi import APIRouter, HTTPException, Depends
 from tools import detachDeleteNode, makeQuery, countLikes
-from tools import node, basicResponse, relationPost, format_properties
+from tools import node, basicResponse, relationPost, format_properties, follow
 
 delete = APIRouter()
 
@@ -50,7 +50,7 @@ async def delete_like(postInfo: relationPost, request: Request):
 
 @delete.post('/delete/post', response_model=basicResponse, response_model_exclude_unset=True,
              dependencies=[Depends(BearerAuthMiddleware())])
-async def delete_like(request: Request):
+async def delete_post(request: Request):
     try:
         userID = request.state.user.properties['userId']
         query = f"MATCH (u:User {{userId: '{userID}'}})-[l:POSTED]->(p:Post) DETACH DELETE p"
@@ -61,3 +61,17 @@ async def delete_like(request: Request):
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 
+
+@delete.post('/delete/follow', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def delete_follow(request: Request, followData: follow):
+    try:
+        otherUserID = followData.username
+        userID = request.state.user.properties['userId']
+        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:FOLLOW]->(u:User {format_properties({'username': otherUserID})}) DETACH DELETE l"
+        with neo4j_driver.session() as session:
+            session.run(query)
+
+        return basicResponse(status='success to delete like')
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))

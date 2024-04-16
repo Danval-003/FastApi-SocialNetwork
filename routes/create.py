@@ -327,6 +327,9 @@ async def follow(request: Request, followData: follow):
         countFollows(userId)
         countFollowers(otherUser['username'])
         countMutuals(userId)
+        countFollows(otherUser['username'])
+        countFollowers(userId)
+        countMutuals(otherUser['username'])
 
         return basicResponse(**response_data)
     except Exception as e:

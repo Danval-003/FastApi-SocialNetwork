@@ -7,7 +7,6 @@ from neo4j.time import Date
 from datetime import date
 
 
-
 class NodeD:
     def __init__(self, labels, properties):
         self.labels = labels
@@ -71,6 +70,8 @@ def transFormObject(obj):
         for key, value in properties.items():
             if isinstance(value, Date):
                 properties[key] = value.iso_format()
+            if isinstance(value, neo4j.time.DateTime):
+                properties[key] = value.iso_format()
 
         return NodeD(labels, properties)
     elif isinstance(obj, str) or isinstance(obj, int):
@@ -83,6 +84,7 @@ def transFormObject(obj):
             if isinstance(value, Date):
                 properties[key] = value.iso_format()
             if isinstance(value, neo4j.time.DateTime):
+                print(value)
                 properties[key] = value.iso_format()
         return RelationshipD(typeR, properties, nodesR[0], nodesR[1])
 

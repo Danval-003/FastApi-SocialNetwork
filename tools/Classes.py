@@ -71,7 +71,6 @@ def transFormObject(obj):
         return obj
     elif obj is not None:
         nodesR = [transFormObject(ls) for ls in obj.nodes]
-        print(nodesR)
         typeR = obj.type
         properties = dict(obj)
         for key, value in properties.items():

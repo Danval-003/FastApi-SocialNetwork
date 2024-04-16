@@ -176,3 +176,7 @@ class commentNode(BaseModel):
     isPrivate: bool = Field(..., example=False, description="Is the post private?")
     language: str = Field(..., example="es", description="Language of the user")
     idDepend: str = Field(..., example="123", description="ID of the post")
+
+
+class updateStatus(BaseModel):
+    status: Optional[str] = Field('', example="Hello", description="Content of the post")

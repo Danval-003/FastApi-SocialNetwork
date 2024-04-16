@@ -3,7 +3,7 @@ import bcrypt
 from starlette.requests import Request
 from werkzeug.utils import secure_filename
 
-from tools import detachDeleteNode, node, basicResponse, UpdateModels, makeQuery, format_properties
+from tools import detachDeleteNode, node, basicResponse, UpdateModels, makeQuery, format_properties, updateStatus
 from typing import Dict, Any, List
 from loginUtilities import BearerAuthMiddleware
 from basics import grid_fs, origin
@@ -97,6 +97,25 @@ async def update_user(Up: UpdateModels.updateRelations, request: Request):
         query += " RETURN n"
         makeQuery(query, listOffIndexes=['n'])
         return basicResponse(status='success to update user')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@update.post('/status/', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def update_status(Up: updateStatus, request:Request):
+    try:
+        userId = request.state.user.properties['userId']
+        status = Up.status
+
+        if status == '':
+            queryToDelete = f"MATCH (n:User {format_properties({'userId': userId})}) REMOVE n.status RETURN n"
+            makeQuery(queryToDelete, listOffIndexes=['n'])
+            return basicResponse(status='success to update status')
+
+        query = f"MATCH (n:User {format_properties({'userId': userId})}) SET n.status = '{status}' RETURN n"
+        makeQuery(query, listOffIndexes=['n'])
+        return basicResponse(status='success to update status')
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

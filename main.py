@@ -9,7 +9,7 @@ from starlette.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 from basics import app, SECRET_KEY
-from routes import create, delete, read, update, loginUtilities
+from routes import create, delete, read, update, loginUtilities, csvData
 from gridfs_routes import gridR
 from tools import makeQuery, node
 import ipinfo
@@ -21,6 +21,7 @@ app.include_router(read, prefix="/search", tags=["search"])
 app.include_router(update, prefix="/update", tags=["update"])
 app.include_router(gridR, prefix="/multimedia", tags=["multimedia"])
 app.include_router(loginUtilities, prefix="/login", tags=["login"])
+app.include_router(csvData, prefix="/csv", tags=["csv"])
 
 # Configuración de CORS para permitir todos los orígenes
 app.add_middleware(

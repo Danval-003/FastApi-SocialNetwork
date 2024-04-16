@@ -120,6 +120,8 @@ async def update_status(Up: updateStatus, request:Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
+
 # Función para hashear una contraseña y generar una sal
 def hash_password(password):
     # Generar una sal aleatoria

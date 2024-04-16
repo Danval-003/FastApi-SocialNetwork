@@ -90,12 +90,11 @@ def updateNode(labels: List[str], oldProperties=None, newProperties=None):
 
 
 def countLikes(idPost):
-    query = f"MATCH (p:Post {{postId: '{idPost}'}})<-[r:LIKE]-()" \
-            """
+    query = f"""MATCH (p:Post {{postId: '{idPost}'}})<-[r:LIKE]-()
             WITH p, COUNT(r) AS num_relations
             SET p.likes = num_relations
-            RETURN n"""
-    results = makeQuery(query, listOffIndexes=['n'])
+            RETURN p"""
+    results = makeQuery(query, listOffIndexes=['p'])
     return results[0][0]
 
 
@@ -104,8 +103,8 @@ def countFollows(username):
             """
             WITH p, COUNT(r) AS num_relations
             SET p.followerCount = num_relations
-            RETURN n"""
-    results = makeQuery(query, listOffIndexes=['n'])
+            RETURN p"""
+    results = makeQuery(query, listOffIndexes=['p'])
     return results[0][0]
 
 
@@ -114,8 +113,8 @@ def countFollowers(username):
             """
             WITH p, COUNT(r) AS num_relations
             SET p.followCount = num_relations
-            RETURN n"""
-    results = makeQuery(query, listOffIndexes=['n'])
+            RETURN p"""
+    results = makeQuery(query, listOffIndexes=['p'])
     return results[0][0]
 
 
@@ -125,6 +124,6 @@ def countMutuals(username):
             MATCH (o)-[r2:FOLLOW]->(p)
             WITH p, COUNT(r2) AS num_relations
             SET p.mutualCount = num_relations
-            RETURN n"""
-    results = makeQuery(query, listOffIndexes=['n'])
+            RETURN p"""
+    results = makeQuery(query, listOffIndexes=['p'])
     return results[0][0]

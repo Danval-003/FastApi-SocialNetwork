@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
 from tools import makeQuery, format_properties, searchLIMIT
-from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel
+from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel, relationSearch
 from typing import Dict, Any, List, Optional
 from loginUtilities import BearerAuthMiddleware
 
@@ -276,3 +276,33 @@ async def getAllPostsBySearch(limits: searchLIMIT):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@read.post('/relation/', response_model=searchRelationshipsModel, dependencies=[Depends(BearerAuthMiddleware())],
+           response_model_exclude_unset=True)
+async def searchRelation(request: Request, relationS: relationSearch):
+    try:
+        userId = request.state.user.properties['userId']
+        prop = {'userId': userId}
+        query = f"MATCH (u:User {format_properties(prop)})-[r:{relationS.relationType}]->(p{':'if len(relationS.labels) > 0 else ''}{':'.join(relationS.labels)}) RETURN u, r, p"
+        results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
+
+        if len(results) == 0:
+            return searchRelationshipsModel(status='success', relationships=[])
+
+        relations: List[relationShipModel] = []
+
+        for r in results:
+            n = node(labels=r[0].labels, properties=r[0].properties)
+            s = node(labels=r[2].labels, properties=r[2].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
+
+            relations.append(relation)
+
+        return searchRelationshipsModel(status='success', relationships=relations)
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))

@@ -278,12 +278,16 @@ async def follow(request: Request, followData: follow):
     try:
         username: str = followData.username
         userId = request.state.user.properties['userId']
+        us = request.state.user.properties['username']
+
+        if us == username:
+            return HTTPException(status_code=400, detail="You cannot follow yourself")
         otherUser = {'username': username}
 
         query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:FOLLOW]->(o:User {format_properties(otherUser)}) RETURN r"
         results = makeQuery(query, listOffIndexes=['r'])
         if len(results) > 0:
-            raise HTTPException(status_code=400, detail="You already follow this user")
+            return HTTPException(status_code=400, detail="You already follow this user")
 
         query = f"MATCH (u:User {format_properties({'userId': userId})})<-[r:FOLLOW]-(o:User {format_properties(otherUser)}) RETURN r"
         results = makeQuery(query, listOffIndexes=['r'])

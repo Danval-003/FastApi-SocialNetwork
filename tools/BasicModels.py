@@ -161,6 +161,10 @@ class relationPost(BaseModel):
     idPost: str = Field(..., example="123", description="ID of the post")
     relationType : str = Field(..., example="KNOWS", description="Type of the relation")
 
+class relationSearch(BaseModel):
+    relationType : str = Field(..., example="KNOWS", description="Type of the relation")
+    labels: List[str] = Field([], example=["Person"], description="Labels of the node")
+
 class searchLIMIT(BaseModel):
     search: Optional[str] = Field('', example="Dinamo", description="Search query")
     skip: Optional[int] = Field(0, example=0, description="Skip the first n results")

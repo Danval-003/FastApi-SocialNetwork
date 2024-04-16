@@ -95,7 +95,36 @@ def countLikes(idPost):
             WITH p, COUNT(r) AS num_relations
             SET p.likes = num_relations
             RETURN n"""
-    results = makeQuery(query, listOffIndexes=['likes'])
+    results = makeQuery(query, listOffIndexes=['n'])
     return results[0][0]
 
 
+def countFollows(username):
+    query = f"MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})<-[r:FOLLOW]-()" \
+            """
+            WITH p, COUNT(r) AS num_relations
+            SET p.followerCount = num_relations
+            RETURN n"""
+    results = makeQuery(query, listOffIndexes=['n'])
+    return results[0][0]
+
+
+def countFollowers(username):
+    query = f"MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})-[r:FOLLOW]->()" \
+            """
+            WITH p, COUNT(r) AS num_relations
+            SET p.followCount = num_relations
+            RETURN n"""
+    results = makeQuery(query, listOffIndexes=['n'])
+    return results[0][0]
+
+
+def countMutuals(username):
+    query = f"MATCH (p:User:Person {{username: '{username.replace("'", r"\'")}'}})-[r:FOLLOW]->(o:User:Person)" \
+            """
+            MATCH (o)-[r2:FOLLOW]->(p)
+            WITH p, COUNT(r2) AS num_relations
+            SET p.mutualCount = num_relations
+            RETURN n"""
+    results = makeQuery(query, listOffIndexes=['n'])
+    return results[0][0]

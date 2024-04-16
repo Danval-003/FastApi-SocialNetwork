@@ -100,7 +100,7 @@ def countLikes(idPost):
 
 
 def countFollows(username):
-    query = f"MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})<-[r:FOLLOW]-()" \
+    query = f"MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})<-[r:FOLLOW]-(s)" \
             """
             WITH p, COUNT(r) AS num_relations
             SET p.followerCount = num_relations
@@ -110,7 +110,7 @@ def countFollows(username):
 
 
 def countFollowers(username):
-    query = f"MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})-[r:FOLLOW]->()" \
+    query = f"MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})<-[r:FOLLOW]-(s)" \
             """
             WITH p, COUNT(r) AS num_relations
             SET p.followCount = num_relations

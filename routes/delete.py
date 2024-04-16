@@ -53,7 +53,7 @@ async def delete_like(postInfo: relationPost, request: Request):
 async def delete_like(request: Request):
     try:
         userID = request.state.user.properties['userId']
-        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:POSTED]->(p:Post) DELETE p"
+        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:POSTED]->(p:Post) DETACH DELETE p"
         with neo4j_driver.session() as session:
             session.run(query)
 

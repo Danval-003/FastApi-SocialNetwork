@@ -12,7 +12,7 @@ from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
 from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, onlyIdPost, commentNode
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties, countLikes
-from tools import countFollows, countFollowers
+from tools import countFollows, countFollowers, countMutuals
 from otherOperations import createHashtags
 
 create = APIRouter()
@@ -326,6 +326,7 @@ async def follow(request: Request, followData: follow):
 
         countFollows(userId)
         countFollowers(otherUser['username'])
+        countMutuals(userId)
 
         return basicResponse(**response_data)
     except Exception as e:

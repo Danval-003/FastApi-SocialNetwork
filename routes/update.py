@@ -108,7 +108,7 @@ async def update_status(Up: updateStatus, request:Request):
         userId = request.state.user.properties['userId']
         status = Up.status
 
-        if status == '':
+        if status.strip() == '':
             queryToDelete = f"MATCH (n:User {format_properties({'userId': userId})}) REMOVE n.status RETURN n"
             makeQuery(queryToDelete, listOffIndexes=['n'])
             return basicResponse(status='success to update status')

@@ -69,9 +69,9 @@ def transFormObject(obj):
 
         for key, value in properties.items():
             if isinstance(value, Date):
-                properties[key] = value.iso_format()
+                properties[key] = value.strftime('%Y-%m-%d')
             if isinstance(value, neo4j.time.DateTime):
-                properties[key] = value.iso_format()
+                properties[key] = value.strftime('%Y-%m-%d')
 
         return NodeD(labels, properties)
     elif isinstance(obj, str) or isinstance(obj, int):

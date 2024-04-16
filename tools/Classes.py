@@ -1,3 +1,4 @@
+import datetime
 from datetime import date
 from neo4j import graph
 from neo4j.time import Date
@@ -51,6 +52,9 @@ def format_properties(properties):
             return str(val)
         if isinstance(val, date):
             return f"date('{val}')"
+        if isinstance(val, datetime.datetime):
+            return f"datetime('{val.strftime("%Y-%m-%d %H:%M:%S")}')"
+
         return str(val)
 
     formatted_props = "{" + ", ".join(f"{key}: {typed(value)}" for key, value in properties.items()) + "}"

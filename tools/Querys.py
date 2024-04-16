@@ -96,7 +96,7 @@ def countLikes(idPost):
             SET p.likes = num_relations
             RETURN p"""
     results = makeQuery(query, listOffIndexes=['p'])
-    return results[0][0]
+    return len(results)
 
 
 def countFollows(username):
@@ -106,7 +106,7 @@ def countFollows(username):
             SET p.followerCount = num_relations
             RETURN p"""
     results = makeQuery(query, listOffIndexes=['p'])
-    return results[0][0]
+    return len(results)
 
 
 def countFollowers(username):
@@ -116,7 +116,7 @@ def countFollowers(username):
             SET p.followCount = num_relations
             RETURN p"""
     results = makeQuery(query, listOffIndexes=['p'])
-    return results[0][0]
+    return len(results)
 
 
 def countMutuals(username):
@@ -127,4 +127,4 @@ def countMutuals(username):
             SET p.mutualCount = num_relations
             RETURN p"""
     results = makeQuery(query, listOffIndexes=['p'])
-    return results[0][0]
+    return len(results)

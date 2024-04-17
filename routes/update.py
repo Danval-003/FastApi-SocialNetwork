@@ -140,11 +140,10 @@ async def update_status_post(Up: updateStatus, request: Request):
                 SET n.status = '{status.replace("'", r"\'")}'
                 RETURN n
             """
-
             makeQuery(query, listOffIndexes=['n'])
 
             return basicResponse(status='success to update status')
-        return basicResponse(status='success to update status')
+        return basicResponse(status='success to remove status')
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

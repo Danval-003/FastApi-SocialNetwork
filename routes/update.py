@@ -127,7 +127,7 @@ async def update_status_post(Up: updateStatus, request: Request):
         userId = request.state.user.properties['userId']
         status = Up.status
         query = f"""MATCH (U:User {format_properties({'userId': userId})})-[:POSTED]-(n:Post)
-        WHERE EXISTS(n.status)
+        WHERE n.status IS NOT NULL
         REMOVE n.status
         RETURN n
         """
@@ -136,7 +136,7 @@ async def update_status_post(Up: updateStatus, request: Request):
         if len(results) == 0:
             query = f"""
                 MATCH (U:User {format_properties({'userId': userId})})-[:POSTED]-(n:Post)
-                WHERE NOT EXISTS(n.status)
+                WHERE NOT n.status IS NOT NULL
                 SET n.status = '{status.replace("'", r"\'")}'
                 RETURN n
             """

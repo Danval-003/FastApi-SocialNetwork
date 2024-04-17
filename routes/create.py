@@ -433,7 +433,7 @@ async def createComment(comment: commentNode):
         toResp = {}
         if len(results) == 0:
             query = f"MATCH (p:Comment {format_properties({'postId': upperPostID})}) <- [:POSTED]- (u:User) RETURN p, u"
-            results = makeQuery(query, listOffIndexes=['p'])
+            results = makeQuery(query, listOffIndexes=['p', 'u'])
             if len(results) == 0:
                 raise HTTPException(status_code=404, detail="Post not found")
             commentTo = results[0][0].properties['authors']

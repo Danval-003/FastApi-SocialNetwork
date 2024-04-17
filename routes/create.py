@@ -465,3 +465,22 @@ async def createComment(comment: commentNode):
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+@create.post('/setMemberStatus/', dependencies=[Depends(BearerAuthMiddleware())])
+async def setMemberStatus(Up: updateUser, request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        status = Up.properties['status']
+
+        query = f"MATCH (n:Organization {format_properties({'userId': userId})})<-[r:AFFILIATE]-(:User) "
+
+        if status == '':
+            query += "REMOVE r.status"
+        else:
+            query += f"SET r.status = '{status}'"
+
+        query += " RETURN n"
+        makeQuery(query, listOffIndexes=['n'])
+        return basicResponse(status='Successfully updated all relationships. ' + f"({'REMOVE' if status == '' else 'SET'})")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

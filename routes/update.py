@@ -103,7 +103,7 @@ async def update_user(Up: UpdateModels.updateRelations, request: Request):
 
 @update.post('/status/', response_model=basicResponse, response_model_exclude_unset=True,
              dependencies=[Depends(BearerAuthMiddleware())])
-async def update_status(Up: updateStatus, request:Request):
+async def update_status(Up: updateStatus, request: Request):
     try:
         userId = request.state.user.properties['userId']
         status = Up.status
@@ -120,6 +120,23 @@ async def update_status(Up: updateStatus, request:Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@update.post('/status/post/', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def update_status(Up: updateStatus, request: Request):
+    try:
+        userId = request.state.user.properties['userId']
+        status = Up.status
+
+        if status.strip() == '':
+            queryToDelete = f"MATCH (n:User {format_properties({'userId': userId})})-[:POSTED]-(o) REMOVE o.status RETURN o"
+            makeQuery(queryToDelete, listOffIndexes=['o'])
+            return basicResponse(status='success to update status')
+
+        query = f"MATCH (n:User {format_properties({'userId': userId})})-[:POSTED]-(o) SET o.status = '{status}' RETURN o"
+        makeQuery(query, listOffIndexes=['o'])
+        return basicResponse(status='success to update status')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Función para hashear una contraseña y generar una sal

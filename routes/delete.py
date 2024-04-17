@@ -76,3 +76,16 @@ async def delete_follow(request: Request, followData: follow):
         return basicResponse(status='success to delete like')
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+@delete.post('/delete/saves', response_model=basicResponse, response_model_exclude_unset=True,
+             dependencies=[Depends(BearerAuthMiddleware())])
+async def delete_saves(request: Request, followData: follow):
+    try:
+        userID = request.state.user.properties['userId']
+        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:SAVED]->(p:Post) DETACH DELETE l"
+        with neo4j_driver.session() as session:
+            session.run(query)
+
+        return basicResponse(status='All saved posts have been deleted.')
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))

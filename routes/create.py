@@ -378,7 +378,6 @@ async def likesC(request: Request, likeData: like):
             'positive': positive if positive is not None else True
         }, node1=user, node2=post)
 
-        print("like")
         response_data = {'status': f'success to like post {id_post}'}
         countLikes(id_post)
         return basicResponse(**response_data)

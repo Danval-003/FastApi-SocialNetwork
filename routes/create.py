@@ -327,12 +327,12 @@ async def follow(request: Request, followData: follow):
 
         response_data = {'status': f'success to follow {otherUser}'}
 
-        countFollows(userId)
-        countFollowers(otherUser['username'])
-        countMutuals(userId)
-        countFollows(otherUser['username'])
-        countFollowers(userId)
-        countMutuals(otherUser['username'])
+        #countFollows(userId)
+        #countFollowers(otherUser['username'])
+        #countMutuals(userId)
+        #countFollows(otherUser['username'])
+        #countFollowers(userId)
+        #countMutuals(otherUser['username'])
 
         countAllFollowTypes(us)
         countAllFollowTypes(username)

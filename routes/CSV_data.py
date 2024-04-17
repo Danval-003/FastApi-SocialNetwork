@@ -4,7 +4,7 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException, Depends, UploadFile
 
 from tools import basicResponse, format_properties, makeQuery, createRelationship, NodeD
-
+from .create import hash_password
 csvData = APIRouter()
 
 
@@ -28,6 +28,9 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
         # Eliminar la columna de índices (es decir, resetear el índice)
         df.reset_index(drop=True, inplace=True)
         query = ''
+
+        if 'password' in df.columns:
+            df['password'] = df['password'].apply(lambda x: str(hash_password(x)))
 
         for nodeProps in df.to_dict(orient='records'):
             query += baseQuery + format_properties(nodeProps) + ')\n'
@@ -65,7 +68,6 @@ async def upload_node_csv(file: UploadFile, typeR: str, labels1: Optional[str] =
         for relation in df.to_dict(orient='records'):
             node1 = NodeD(labels=labels[0], properties={elements[0]: relation[elements[0]]})
             node2 = NodeD(labels=labels[1], properties={elements[1]: relation[elements[1]]})
-            print(node1, node2)
             properties = {key: relation[key] for key in elements[2:]}
             createRelationship(node1, node2, typeR, properties=properties)
 

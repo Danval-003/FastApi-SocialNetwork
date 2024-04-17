@@ -122,17 +122,25 @@ async def update_status(Up: updateStatus, request: Request):
 
 @update.post('/status/post/', response_model=basicResponse, response_model_exclude_unset=True,
              dependencies=[Depends(BearerAuthMiddleware())])
-async def update_status(Up: updateStatus, request: Request):
+async def update_status_post(Up: updateStatus, request: Request):
     try:
         userId = request.state.user.properties['userId']
         status = Up.status
-
-        if status.strip() == '':
-            queryToDelete = f"MATCH (n:User {format_properties({'userId': userId})})-[:POSTED]-(o) REMOVE o.status RETURN o"
-            makeQuery(queryToDelete, listOffIndexes=['o'])
-            return basicResponse(status='success to update status')
-
-        query = f"MATCH (n:User {format_properties({'userId': userId})})-[:POSTED]-(o) SET o.status = '{status}' RETURN o"
+        query = f"""MATCH (U:User {format_properties({'userId': userId})})-[:POSTED]-(n:Post)
+        CALL {{
+          WITH n
+          WHERE EXISTS(n.status)
+          REMOVE n.status
+          RETURN n
+        }}
+        CALL {{
+          WITH n
+          WHERE NOT EXISTS(n.status)
+          SET n.status = '{status.replace("'", r"\'")}'
+          RETURN n
+        }}
+        RETURN n
+        """
         makeQuery(query, listOffIndexes=['o'])
         return basicResponse(status='success to update status')
     except Exception as e:

@@ -6,7 +6,7 @@ from basics import neo4j_driver
 from loginUtilities import BearerAuthMiddleware
 from fastapi import APIRouter, HTTPException, Depends
 from tools import detachDeleteNode, makeQuery, countLikes
-from tools import node, basicResponse, relationPost, format_properties, follow
+from tools import node, basicResponse, relationPost, format_properties, follow, countFollows, countFollowers, countMutuals
 from otherOperations import cached_posts
 
 delete = APIRouter()
@@ -72,6 +72,13 @@ async def delete_follow(request: Request, followData: follow):
         query = f"MATCH (u:User {{userId: '{userID}'}})-[l:FOLLOW]->(p:User {format_properties({'username': otherUserID})}) DETACH DELETE l"
         with neo4j_driver.session() as session:
             session.run(query)
+
+        countFollows(otherUserID)
+        countFollowers(otherUserID)
+        countMutuals(otherUserID)
+        countFollowers(userID)
+        countFollows(userID)
+        countMutuals(userID)
 
         return basicResponse(status='success to delete like')
     except Exception as e:

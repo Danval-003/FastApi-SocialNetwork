@@ -428,11 +428,11 @@ async def createComment(comment: commentNode):
         labelsToResponse = []
         props = {'creationDate': datetime.date(datetime.now()), 'lastEdit': datetime.date(datetime.now())}
 
-        query = f"MATCH (p:Post {format_properties({'postId': upperPostID})}) <- [:POSTS]- (u:User) RETURN p, u"
+        query = f"MATCH (p:Post {format_properties({'postId': upperPostID})}) <- [:POSTED]- (u:User) RETURN p, u"
         results = makeQuery(query, listOffIndexes=['p'])
         toResp = {}
         if len(results) == 0:
-            query = f"MATCH (p:Comment {format_properties({'postId': upperPostID})}) <- [:POSTS]- (u:User) RETURN p, u"
+            query = f"MATCH (p:Comment {format_properties({'postId': upperPostID})}) <- [:POSTED]- (u:User) RETURN p, u"
             results = makeQuery(query, listOffIndexes=['p'])
             if len(results) == 0:
                 raise HTTPException(status_code=404, detail="Post not found")

@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
 from tools import makeQuery, format_properties, searchLIMIT
-from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel, relationSearch, onlyIdPost
+from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel, relationSearch, \
+    onlyIdPost
 from typing import Dict, Any, List, Optional
 from loginUtilities import BearerAuthMiddleware
 
@@ -89,7 +90,7 @@ async def searchAffiliate(request: Request):
 async def searchPost(request: Request):
     try:
         userId = request.state.user.properties['userId']
-        query = "MATCH (u:User {userId:'"+userId+"')-[r:POSTED]->(p:Post) RETURN u, r, p"
+        query = "MATCH (u:User {userId:'" + userId + "')-[r:POSTED]->(p:Post) RETURN u, r, p"
         results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
 
         if len(results) == 0:
@@ -113,32 +114,49 @@ async def searchPost(request: Request):
         return HTTPException(status_code=500, detail=str(e))
 
 
-@read.post('/recommend/post', dependencies=[Depends(BearerAuthMiddleware())])
-async def recommendPost(request: Request):
+@read.post('/recommend/post/', dependencies=[Depends(BearerAuthMiddleware())])
+async def recommendPost(request: Request, limits: searchLIMIT):
     try:
         userId = request.state.user.properties['userId']
         query = f"""
-        // Obtener interacciones de un usuario específico
-        MATCH (u:User {format_properties({'userId': userId})})-[interaction]->(p:Post)
-        WHERE type(interaction) IN ['LIKE', 'COMMENTS', 'SAVED']
-        WITH u, p, count(interaction) AS strength
         
-        // Calcular similitud entre posts basada en las etiquetas y propiedades
-        MATCH (p1:Post)-[:TAGS]->(h:Hashtag)<-[:TAGS]-(p2:Post)
-        WHERE p1 <> p2
-        WITH p1, p2, collect(h.name) AS commonTags, count(*) AS tagOverlap
-        MERGE (p1)-[similarity:SIMILAR_TO]->(p2)
-        SET similarity.score = tagOverlap
-        WITH p1, p2
+        MATCH (post:Post)
+        OPTIONAL MATCH (hashtag:Hashtag)-[:TAGS]-(post)
+        WITH post, collect(hashtag.engagementRate) AS engagementRates
+        WITH post,
+               CASE
+                   WHEN size(engagementRates) > 0 THEN reduce(total = 0.0, rate in engagementRates | total + rate) / size(engagementRates)
+                   ELSE 0  // Si no hay hashtags, devolver NULL
+               END AS averageEngagementRate
         
-        // Recomendar posts similares y recientes a los que el usuario ha interactuado
-        MATCH (u)-[:LIKE|COMMENTS|SAVED]->(p:Post)
-        WITH u, p
-        MATCH (p)-[:SIMILAR_TO]->(recommended:Post)
-        WHERE NOT (u)-[:LIKES|COMMENTS|SAVES]->(recommended) 
-        RETURN recommended
-        LIMIT 10
+        MATCH (us:User {{userId:'{userId}'}})
+        WITH us, post, CASE
+        WHEN us.language = post.language THEN averageEngagementRate + 30
+                   ELSE averageEngagementRate  // Si no hay hashtags, devolver NULL
+               END AS averageEngagementRate
+        
+        OPTIONAL MATCH (post)-[r:POSTED|LIKE|SAVED|RESPONSE_TO]-()<-[:FOLLOW]-(us)
+        with us, post, averageEngagementRate, COUNT(r) *20 as pop
+        
+        with us, post, averageEngagementRate + pop as rating
+        
+        OPTIONAL MATCH (post)-[r:TAGS]->(:Hastag)<-[:TAGS]-()-[a:POSTED|LIKE|SAVED|RESPONSE_TO]-(us)
+        
+        with us, post, rating, COUNT(r) *20 as pop
+        
+        with us, post, rating, COALESCE(pop, 0) as pop
+        
+        with us, post, rating + pop as rate
+        return post, rate
+        ORDER BY rate DESC
+
         """
+        skip = limits.skip
+        limit = limits.limit
+        if skip is not None:
+            query += f"\nSKIP {skip}"
+        if limit is not None:
+            query += f"\nLIMIT {limit}"
         results = makeQuery(query, listOffIndexes=['recommended'])
 
         return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
@@ -277,7 +295,7 @@ async def searchRelation(request: Request, relationS: relationSearch):
     try:
         userId = request.state.user.properties['userId']
         prop = {'userId': userId}
-        query = f"MATCH (u:User {format_properties(prop)})-[r:{relationS.relationType}]->(p{':'if len(relationS.labels) > 0 else ''}{':'.join(relationS.labels)}) RETURN u, r, p"
+        query = f"MATCH (u:User {format_properties(prop)})-[r:{relationS.relationType}]->(p{':' if len(relationS.labels) > 0 else ''}{':'.join(relationS.labels)}) RETURN u, r, p"
         results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
 
         if len(results) == 0:
@@ -308,6 +326,7 @@ async def getCommentsByPostId(idPost: str):
     if len(results) == 0:
         return searchNodesModel(status='success', nodes=[])
     return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+
 
 @read.get('/bestHashtags/')
 async def getBestHashtags():

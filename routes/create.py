@@ -13,7 +13,7 @@ from loginUtilities import BearerAuthMiddleware
 from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, onlyIdPost, commentNode
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties, countLikes
 from tools import countFollows, countFollowers, countMutuals
-from otherOperations import createHashtags
+from otherOperations import createHashtags, cached_posts
 
 create = APIRouter()
 
@@ -227,7 +227,6 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
 
         createHashtags(P.hashtags.split('#'), properties['postId'])
         response_data = {'status': f'success to create post with id {properties["postId"]}', 'id': properties['postId']}
-
         return basicResponse(**response_data)
 
     except Exception as e:

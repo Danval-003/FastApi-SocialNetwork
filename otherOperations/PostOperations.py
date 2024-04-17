@@ -5,6 +5,8 @@ from typing import List, Dict, Any
 import uuid
 import random
 
+cached_posts = None
+
 
 def createHashtags(hashtags: List[str], idPost: str):
     for hashtag in hashtags:
@@ -48,10 +50,4 @@ def createHashtags(hashtags: List[str], idPost: str):
         RETURN h.name AS hashtag, num_tags AS cantidad_relaciones, total_likes AS suma_likes, h.engagement AS engagement;
         """
         makeQuery(query, listOffIndexes=['hashtag'])
-
-
-
-
-
-
 

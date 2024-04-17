@@ -7,6 +7,7 @@ from loginUtilities import BearerAuthMiddleware
 from fastapi import APIRouter, HTTPException, Depends
 from tools import detachDeleteNode, makeQuery, countLikes
 from tools import node, basicResponse, relationPost, format_properties, follow
+from otherOperations import cached_posts
 
 delete = APIRouter()
 

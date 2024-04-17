@@ -89,8 +89,7 @@ async def searchAffiliate(request: Request):
 async def searchPost(request: Request):
     try:
         userId = request.state.user.properties['userId']
-        prop = {'userId': userId}
-        query = f"MATCH (u:User {format_properties(prop)})-[r:POSTED]->(p:Post) RETURN u, r, p"
+        query = "MATCH (u:User {userId:'"+userId+"')-[r:POSTED]->(p:Post) RETURN u, r, p"
         results = makeQuery(query, listOffIndexes=['u', 'r', 'p'])
 
         if len(results) == 0:

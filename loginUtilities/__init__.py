@@ -13,12 +13,9 @@ from warnings import warn
 
 def get_user(username: str):
     query = f"MATCH (u:User {{username: '{username}'}}) RETURN u"
-    print("Query: ", query)
     results = makeQuery(query, listOffIndexes=['u'])
-    print(len(results))
     if len(results) != 1:
         return None
-    print(len(results))
     return node(labels=results[0][0].labels, properties=results[0][0].properties)
 
 

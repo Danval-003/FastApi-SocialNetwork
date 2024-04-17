@@ -309,4 +309,13 @@ async def getCommentsByPostId(idPost: str):
         return searchNodesModel(status='success', nodes=[])
     return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
 
-
+@read.get('/bestHashtags/')
+async def getBestHashtags():
+    query = """
+    MATCH (n:Hashtag)
+    RETURN n 
+    ORDER BY n.engagementRate DESC
+    LIMIT 5;
+    """
+    results = makeQuery(query, listOffIndexes=['n'])
+    return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])

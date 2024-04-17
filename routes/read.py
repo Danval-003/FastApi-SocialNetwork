@@ -177,6 +177,8 @@ async def recommendPost(request: Request, limits: searchLIMIT):
 
             relations.append(relation)
 
+        return searchRelationshipsModel(status='success', relationships=relations)
+
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 

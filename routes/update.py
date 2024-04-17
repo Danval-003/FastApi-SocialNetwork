@@ -131,7 +131,7 @@ async def update_status_post(Up: updateStatus, request: Request):
         REMOVE n.status
         RETURN n
         """
-        results = makeQuery(query, listOffIndexes=['o'])
+        results = makeQuery(query, listOffIndexes=['n'])
 
         if len(results) == 0:
             query = f"""

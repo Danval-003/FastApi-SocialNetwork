@@ -160,9 +160,22 @@ async def recommendPost(request: Request, limits: searchLIMIT):
             query += f"\nSKIP {skip}"
         if limit is not None:
             query += f"\nLIMIT {limit}"
-        results = makeQuery(query, listOffIndexes=['post'])
+        results = makeQuery(query, listOffIndexes=['u', 'r', 'post'])
 
-        return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+        if len(results) == 0:
+            return searchRelationshipsModel(status='success', relationships=[])
+
+        relations: List[relationShipModel] = []
+
+        for r in results:
+            n = node(labels=r[0].labels, properties=r[0].properties)
+            s = node(labels=r[2].labels, properties=r[2].properties)
+
+            relation = relationShipModel(typeR=r[1].type, properties=r[1].properties,
+                                         nodeTo=s,
+                                         nodeFrom=n)
+
+            relations.append(relation)
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))

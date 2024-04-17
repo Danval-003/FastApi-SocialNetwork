@@ -12,7 +12,7 @@ from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
 from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, onlyIdPost, commentNode
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties, countLikes
-from tools import countFollows, countFollowers, countMutuals
+from tools import countFollows, countFollowers, countMutuals, countAllFollowTypes
 from otherOperations import createHashtags, cached_posts
 
 create = APIRouter()
@@ -196,7 +196,7 @@ async def makePost(request: Request, P: postNode = Depends(), multimedia: List[U
         properties['multimedia'] = []
         properties['language'] = detect(properties['textContent'])
         properties['likes'] = 0
-        properties['views'] = 0
+        properties['comments'] = 0
         properties['hashtags'] = [tag.lower().strip() for tag in P.hashtags.split('#') if tag.lower().strip() != '']
         if 'location' in request.state.user.properties:
             properties['location'] = request.state.user.properties['location']
@@ -327,12 +327,8 @@ async def follow(request: Request, followData: follow):
 
         response_data = {'status': f'success to follow {otherUser}'}
 
-        countFollows(userId)
-        countFollowers(otherUser['username'])
-        countMutuals(userId)
-        countFollows(otherUser['username'])
-        countFollowers(userId)
-        countMutuals(otherUser['username'])
+        countAllFollowTypes(us)
+        countAllFollowTypes(username)
 
         return basicResponse(**response_data)
     except Exception as e:
@@ -453,6 +449,14 @@ async def createComment(comment: commentNode):
         createNode(['Comment'], properties, merge=True)
         createRelationship(typeR='RESPONSE_TO', properties=props, node2=NodeD(labelsToResponse, toResp),
                            node1=NodeD(['Comment'], {'commentId': properties['commentId']}))
+
+        query = f"""MATCH (p:Post {format_properties({'postId': upperPostID})})
+                OPTIONAL MATCH (p)<-[r:RESPONSE_TO]-(c:Comment)
+                WITH p, COUNT(r) AS commentCount
+                SET p.comments = commentCount
+                RETURN p"""
+
+        results = makeQuery(query, listOffIndexes=['p'])
 
         response_data = {'status': f'success to create comment with id {properties["commentId"]}'}
 

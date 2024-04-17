@@ -6,7 +6,7 @@ from basics import neo4j_driver
 from loginUtilities import BearerAuthMiddleware
 from fastapi import APIRouter, HTTPException, Depends
 from tools import detachDeleteNode, makeQuery, countLikes
-from tools import node, basicResponse, relationPost, format_properties, follow, countFollows, countFollowers, countMutuals
+from tools import node, basicResponse, relationPost, format_properties, follow, countFollows, countFollowers, countMutuals, countAllFollowTypes
 from otherOperations import cached_posts
 
 delete = APIRouter()
@@ -74,14 +74,10 @@ async def delete_follow(request: Request, followData: follow):
         with neo4j_driver.session() as session:
             session.run(query)
 
-        countFollows(otherUserID)
-        countFollowers(otherUserID)
-        countMutuals(otherUserID)
-        countFollowers(username)
-        countFollows(username)
-        countMutuals(username)
+        countAllFollowTypes(username)
+        countAllFollowTypes(otherUserID)
 
-        return basicResponse(status='success to delete like')
+        return basicResponse(status='Follow relationship successfully deleted.')
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 

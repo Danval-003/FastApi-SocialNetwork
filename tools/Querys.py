@@ -127,3 +127,16 @@ def countMutuals(username):
             RETURN p"""
     results = makeQuery(query, listOffIndexes=['p'])
     return len(results)
+
+def countAllFollowTypes(username):
+    query = f"""MATCH (p:User {{username: '{username.replace("'", r"\'")}'}})
+            OPTIONAL MATCH (p)<-[r1:FOLLOW]-(s)
+            WITH p, COUNT(r1) AS followerCount
+            OPTIONAL MATCH (p)-[r2:FOLLOW]->(s)
+            WITH p, followerCount, COUNT(r2) AS followCount
+            OPTIONAL MATCH (p)-[r3:FOLLOW]->(o:User:Person)-[r4:FOLLOW]->(p)
+            WITH p, followerCount, followCount, COUNT(r4) AS mutualCount
+            SET p.followerCount = followerCount, p.followCount = followCount, p.mutualCount = mutualCount
+            RETURN p"""
+    results = makeQuery(query, listOffIndexes=['p'])
+    return len(results)

@@ -92,7 +92,7 @@ async def update_user(Up: UpdateModels.updateRelations, request: Request):
         if Up.role == '':
             query += "REMOVE r.role"
         else:
-            query += f"SET r.role = '{Up.role}'"
+            query += f"SET r.role = '{Up.role}', r.lastEditDate = datetime()"
 
         query += " RETURN n"
         makeQuery(query, listOffIndexes=['n'])

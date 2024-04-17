@@ -167,10 +167,10 @@ async def mySaves(request: Request):
     try:
         userId = request.state.user.properties['userId']
         query = (f"MATCH (u:User {format_properties({'userId': userId})})"
-                 f"-[r:SAVED]->(p:Post)<-[r:POSTED]->(u2:User) RETURN p,r,u2")
-        results = makeQuery(query, listOffIndexes=['p'])
+                 f"-[r:SAVED]->(p:Post)<-[r2:POSTED]->(u2:User) RETURN p,r2,u2")
+        results = makeQuery(query, listOffIndexes=['p', 'r2', 'u2'])
         if len(results) == 0:
-            return searchNodesModel(status='success', nodes=[])
+            return searchRelationshipsModel(status='success', relationships=[])
 
         relations: List[relationShipModel] = []
 

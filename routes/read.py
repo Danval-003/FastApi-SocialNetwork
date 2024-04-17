@@ -157,7 +157,7 @@ async def recommendPost(request: Request, limits: searchLIMIT):
             query += f"\nSKIP {skip}"
         if limit is not None:
             query += f"\nLIMIT {limit}"
-        results = makeQuery(query, listOffIndexes=['recommended'])
+        results = makeQuery(query, listOffIndexes=['post'])
 
         return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
 

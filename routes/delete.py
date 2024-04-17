@@ -69,7 +69,7 @@ async def delete_follow(request: Request, followData: follow):
     try:
         otherUserID = followData.username
         userID = request.state.user.properties['userId']
-        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:FOLLOW]->(u:User {format_properties({'username': otherUserID})}) DETACH DELETE l"
+        query = f"MATCH (u:User {{userId: '{userID}'}})-[l:FOLLOW]->(p:User {format_properties({'username': otherUserID})}) DETACH DELETE l"
         with neo4j_driver.session() as session:
             session.run(query)
 

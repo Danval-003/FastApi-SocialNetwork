@@ -33,7 +33,7 @@ async def delete_like(postInfo: relationPost, request: Request):
         if len(results) == 0:
             return HTTPException(status_code=404, detail="Post not found")
         userID = request.state.user.properties['userId']
-        query = (f"MATCH (u:User {format_properties({'userId': userID})})-[l:LIKE]->(p:Post "
+        query = (f"MATCH (u:User {format_properties({'userId': userID})})-[l:{postInfo.relationType}]->(p:Post "
                  f"{format_properties({'postId': postInfo.idPost})}) RETURN l")
 
         results = makeQuery(query, listOffIndexes=['l'])

@@ -74,13 +74,6 @@ async def delete_follow(request: Request, followData: follow):
         with neo4j_driver.session() as session:
             session.run(query)
 
-        #countFollows(otherUserID)
-        #countFollowers(otherUserID)
-        #countMutuals(otherUserID)
-        #countFollowers(username)
-        #countFollows(username)
-        #countMutuals(username)
-
         countAllFollowTypes(username)
         countAllFollowTypes(otherUserID)
 

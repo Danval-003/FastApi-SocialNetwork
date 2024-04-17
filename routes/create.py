@@ -429,7 +429,7 @@ async def createComment(comment: commentNode):
         props = {'creationDate': datetime.date(datetime.now()), 'lastEdit': datetime.date(datetime.now())}
 
         query = f"MATCH (p:Post {format_properties({'postId': upperPostID})}) <- [:POSTED]- (u:User) RETURN p, u"
-        results = makeQuery(query, listOffIndexes=['p'])
+        results = makeQuery(query, listOffIndexes=['p', 'u'])
         toResp = {}
         if len(results) == 0:
             query = f"MATCH (p:Comment {format_properties({'postId': upperPostID})}) <- [:POSTED]- (u:User) RETURN p, u"

@@ -84,7 +84,6 @@ def transFormObject(obj):
             if isinstance(value, Date):
                 properties[key] = value.iso_format()
             if isinstance(value, neo4j.time.DateTime):
-                print(value)
                 properties[key] = value.iso_format()
         return RelationshipD(typeR, properties, nodesR[0], nodesR[1])
 

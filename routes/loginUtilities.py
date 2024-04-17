@@ -8,9 +8,13 @@ from starlette.requests import Request
 from basics import create_access_token, oauth2_scheme
 from loginUtilities import BearerAuthMiddleware
 from tools import makeQuery, node, loginModel
+from cachetools import cached, TTLCache
 import re
 
 loginUtilities = APIRouter()
+
+# Configurar un cache TTL (Time-To-Live) para almacenar las credenciales autenticadas
+cache = TTLCache(maxsize=1000, ttl=300)
 
 
 @loginUtilities.post('/login')
@@ -18,6 +22,9 @@ async def login(loginInfo: loginModel):
     try:
         username = loginInfo.username
         password = loginInfo.password
+        cached_response = cache.get((username, password))
+        if cached_response:
+            return cached_response
         query = f"MATCH (u:User {{username: '{username}'}}) RETURN u"
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) == 0:
@@ -35,7 +42,11 @@ async def login(loginInfo: loginModel):
 
         nodeUser = node(labels=user.labels, properties=user.properties)
 
-        return {"access_token": access_token, "token_type": "bearer", "user": nodeUser}
+        response = {"access_token": access_token, "token_type": "bearer", "user": nodeUser}
+
+        cache[(username, password)] = response
+
+        return response
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
 

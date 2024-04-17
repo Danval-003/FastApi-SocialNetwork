@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
 from tools import makeQuery, format_properties, searchLIMIT
-from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel, relationSearch
+from tools import node, relationship, searchNodesModel, searchRelationshipsModel, relationShipModel, relationSearch, onlyIdPost
 from typing import Dict, Any, List, Optional
 from loginUtilities import BearerAuthMiddleware
 
@@ -299,3 +299,14 @@ async def searchRelation(request: Request, relationS: relationSearch):
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
+
+@read.get('/getComments/byPostId/{idPost}/')
+async def getCommentsByPostId(idPost: str):
+    query = f"MATCH (p:Post {{postId: '{idPost}'}})<-[:RESPONSE_TO]-(u:Comment) RETURN u"
+    results = makeQuery(query, listOffIndexes=['u'])
+    if len(results) == 0:
+        return searchNodesModel(status='success', nodes=[])
+    return searchNodesModel(status='success', nodes=[node(**r[0].to_json()) for r in results])
+
+

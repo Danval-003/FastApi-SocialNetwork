@@ -451,7 +451,7 @@ async def createComment(comment: commentNode):
             toResp = {'postId': upperPostID}
 
         createNode(['Comment'], properties, merge=True)
-        createRelationship(typeR='POSTS', properties=props, node2=NodeD(labelsToResponse, toResp),
+        createRelationship(typeR='RESPONSE_TO', properties=props, node2=NodeD(labelsToResponse, toResp),
                            node1=NodeD(['Comment'], {'commentId': properties['commentId']}))
 
         response_data = {'status': f'success to create comment with id {properties["commentId"]}'}

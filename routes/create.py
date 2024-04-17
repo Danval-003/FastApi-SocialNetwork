@@ -349,19 +349,16 @@ async def likesC(request: Request, likeData: like):
         post = {'postId': id_post}
 
         query = f"MATCH(p:Post {format_properties(post)}) RETURN p"
-        print(query)
         results = makeQuery(query, listOffIndexes=['p'])
         if len(results) == 0:
             raise HTTPException(status_code=404, detail="Post not found")
 
         query = f"MATCH (u:User {format_properties({'userId': userId})})-[r:LIKE]->(p:Post {format_properties(post)}) RETURN r"
-        print(query)
         results = makeQuery(query, listOffIndexes=['r'])
         if len(results) > 0:
             raise HTTPException(status_code=400, detail="You already liked this post")
 
         query = f"MATCH (u:User)-[r:POSTED]->(p:Post {format_properties(post)}) RETURN u"
-        print(query)
         results = makeQuery(query, listOffIndexes=['u'])
         if len(results) == 0:
             raise HTTPException(status_code=404, detail="Post not found")

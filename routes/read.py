@@ -17,8 +17,6 @@ async def searchNode(N: node):
 
         query = f"MATCH (n{':' if len(labels) > 0 else ''}{':'.join(labels)} {format_properties(properties)}) RETURN n"
 
-        print(query)
-
         results = makeQuery(query, listOffIndexes=['n'])
 
         nodes = [node(**n[0].to_json()) for n in results]
@@ -59,13 +57,10 @@ async def searchUserPerson(properties: Dict[str, Any]):
 @read.post('/affiliate', dependencies=[Depends(BearerAuthMiddleware())], response_model=searchRelationshipsModel,
            response_model_exclude_unset=True)
 async def searchAffiliate(request: Request):
-    print("DADSASDA")
     try:
         userId = request.state.user.properties['userId']
-        print("User ID: ", userId)
         prop = {'userId': userId}
         query = f"MATCH (u:User:Person {format_properties(prop)})-[r:AFFILIATE]->(a:User:Organization) RETURN u, r, a"
-        print(query)
         results = makeQuery(query, listOffIndexes=['u', 'r', 'a'])
 
         if len(results) == 0:
@@ -81,7 +76,6 @@ async def searchAffiliate(request: Request):
                                          nodeTo=s,
                                          nodeFrom=n)
 
-            print(relation)
             relations.append(relation)
 
         return searchRelationshipsModel(status='success', relationships=relations)

@@ -7,7 +7,6 @@ import random
 
 
 def createHashtags(hashtags: List[str], idPost: str):
-    print(hashtags)
     for hashtag in hashtags:
         hashtag = hashtag.lower().strip()
         idTag = str(uuid.uuid4())

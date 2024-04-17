@@ -24,18 +24,14 @@ def get_user(username: str):
 
 class BearerAuthMiddleware(HTTPBearer):
     async def __call__(self, request: Request):
-        print("BearerAuthMiddleware")
         try:
             token = await oauth2_scheme.__call__(request)
-            print("Token: ", token)
             try:
                 payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 username: str = payload.get("sub")
-                print("Email: ", username)
                 if username is None:
                     raise HTTPException(status_code=401, detail="Invalid token")
                 user = get_user(username)
-                print("User:", user)
                 if not user:
                     raise HTTPException(status_code=401, detail="User not found")
                 request.state.user = user  # Almacenar el usuario autenticado en el estado de la solicitud

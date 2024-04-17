@@ -79,7 +79,7 @@ async def delete_follow(request: Request, followData: follow):
 
 @delete.post('/delete/saves', response_model=basicResponse, response_model_exclude_unset=True,
              dependencies=[Depends(BearerAuthMiddleware())])
-async def delete_saves(request: Request, followData: follow):
+async def delete_saves(request: Request):
     try:
         userID = request.state.user.properties['userId']
         query = f"MATCH (u:User {{userId: '{userID}'}})-[l:SAVED]->(p:Post) DETACH DELETE l"

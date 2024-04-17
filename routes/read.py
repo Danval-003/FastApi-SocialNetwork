@@ -147,7 +147,10 @@ async def recommendPost(request: Request, limits: searchLIMIT):
         with us, post, rating, COALESCE(pop, 0) as pop
         
         with us, post, rating + pop as rate
-        return post, rate
+        MATCH(post:Post) <-[r:POSTED]-(u)
+        WHERE NOT post.isPrivate
+        AND NOT EXISTS {{ MATCH (post)<-[:POSTED]-(us) }}
+        return u, r, post, rate
         ORDER BY rate DESC
 
         """

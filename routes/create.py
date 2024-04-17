@@ -130,7 +130,9 @@ async def create_user_person(profile_image: UploadFile = File(None), U: user_per
 
         orgId = originalOrg()
 
-        createRelationship(typeR='AFFILIATE', properties={'role': 'member', 'affiliatedDate': str(datetime.date(datetime.now())), "name":""},
+        createRelationship(typeR='AFFILIATE',
+                           properties={'role': 'member', 'affiliatedDate': str(datetime.date(datetime.now())),
+                                       "name": ""},
                            node1=NodeD(['User'], {'userId': properties['userId']}),
                            node2=NodeD(['User'], {'userId': orgId}))
 
@@ -456,7 +458,7 @@ async def createComment(comment: commentNode):
                 SET p.comments = commentCount
                 RETURN p"""
 
-        results = makeQuery(query, listOffIndexes=['p'])
+        makeQuery(query, listOffIndexes=['p'])
 
         response_data = {'status': f'success to create comment with id {properties["commentId"]}'}
 
@@ -465,6 +467,7 @@ async def createComment(comment: commentNode):
 
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
 
 @create.post('/setMemberStatus/', dependencies=[Depends(BearerAuthMiddleware())])
 async def setMemberStatus(Up: updateUser, request: Request):
@@ -481,6 +484,7 @@ async def setMemberStatus(Up: updateUser, request: Request):
 
         query += " RETURN n"
         makeQuery(query, listOffIndexes=['n'])
-        return basicResponse(status='Successfully updated all relationships. ' + f"({'REMOVE' if status == '' else 'SET'})")
+        return basicResponse(
+            status='Successfully updated all relationships. ' + f"({'REMOVE' if status == '' else 'SET'})")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

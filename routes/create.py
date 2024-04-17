@@ -12,7 +12,7 @@ from basics import grid_fs, origin
 from loginUtilities import BearerAuthMiddleware
 from tools import createNode, user_organization, user_person, postNode, affiliate, follow, like, onlyIdPost, commentNode
 from tools import node, basicResponse, createRelationship, NodeD, relationship, makeQuery, format_properties, countLikes
-from tools import countFollows, countFollowers, countMutuals, countAllFollowTypes
+from tools import countFollows, countFollowers, countMutuals, countAllFollowTypes, updateUser
 from otherOperations import createHashtags, cached_posts
 
 create = APIRouter()

@@ -10,7 +10,7 @@ csvData = APIRouter()
 
 @csvData.post('/node/', response_model=basicResponse, response_model_exclude_unset=True)
 async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
-
+    print(file)
     if labels == '':
         baseQuery = "MERGE (n "
     else:
@@ -48,9 +48,13 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
 
 
 @csvData.post('/upload/relation/', response_model=basicResponse, response_model_exclude_unset=True)
-async def upload_rel_csv(file: UploadFile = File(...), labels1: Optional[str] = '', labels2: Optional[str] = '', typeR: Optional[str] = 'RELATES'):
+async def upload_rel_csv(file: UploadFile, labels:Optional[str]=''):
+    lab = labels.split('#')
+    typeR = lab[0].strip().capitalize()
+    labels1 = lab[1]
+    labels2 = lab[2]
     labels = [labels1.strip().capitalize().split(','), labels2.strip().capitalize().split(',')]
-
+    print(None)
     try:
         # Aquí se debe implementar la lógica para leer el archivo CSV y subir los nodos a la base de datos
         # La variable 'file' contiene el archivo CSV que se subió, el cual debemos leer

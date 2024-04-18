@@ -416,8 +416,9 @@ async def save(request: Request, saveData: onlyIdPost):
 
 
 @create.post('/comments/', dependencies=[Depends(BearerAuthMiddleware())])
-async def createComment(comment: commentNode):
+async def createComment(comment: commentNode, request: Request):
     try:
+        userId = request.state.user.properties['userId']
         properties = {}
         upperPostID = comment.idDepend
         properties['commentId'] = str(uuid.uuid4())

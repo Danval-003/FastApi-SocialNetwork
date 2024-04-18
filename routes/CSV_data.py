@@ -8,15 +8,15 @@ from .create import hash_password
 csvData = APIRouter()
 
 
-@csvData.post('/upload/node/', response_model=basicResponse, response_model_exclude_unset=True)
+@csvData.post('/node/', response_model=basicResponse, response_model_exclude_unset=True)
 async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
 
     if labels == '':
-        baseQuery = "MERGE (n "
+        baseQuery = "CREATE ( "
     else:
         labels = labels.split(',')
         labels = [label.upper() for label in labels]
-        baseQuery = f"MERGE (n: {':'.join(labels)} "
+        baseQuery = f"CREATE (: {':'.join(labels)} "
     try:
         # Aquí se debe implementar la lógica para leer el archivo CSV y subir los nodos a la base de datos
         # La variable 'file' contiene el archivo CSV que se subió, el cual debemos leer
@@ -38,7 +38,11 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
         if query == '':
             return HTTPException(status_code=400, detail='No data to upload')
 
+        query += "with 0 as n"
+
         query += 'RETURN n'
+
+        print(query)
 
         makeQuery(query, listOffIndexes=['n'])
 

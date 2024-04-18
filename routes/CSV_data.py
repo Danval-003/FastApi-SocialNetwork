@@ -15,7 +15,7 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
         baseQuery = "CREATE ( "
     else:
         labels = labels.split(',')
-        labels = [label.upper() for label in labels]
+        labels = [label.capitalize() for label in labels]
         baseQuery = f"CREATE (: {':'.join(labels)} "
     try:
         # Aquí se debe implementar la lógica para leer el archivo CSV y subir los nodos a la base de datos
@@ -41,8 +41,6 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
         query += "with 0 as n"
 
         query += 'RETURN n'
-
-        print(query)
 
         makeQuery(query, listOffIndexes=['n'])
 

@@ -12,11 +12,11 @@ csvData = APIRouter()
 async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
 
     if labels == '':
-        baseQuery = "CREATE ( "
+        baseQuery = "MERGE ( "
     else:
         labels = labels.split(',')
         labels = [label.capitalize() for label in labels]
-        baseQuery = f"CREATE (: {':'.join(labels)} "
+        baseQuery = f"MERGE (: {':'.join(labels)} "
     try:
         # Aquí se debe implementar la lógica para leer el archivo CSV y subir los nodos a la base de datos
         # La variable 'file' contiene el archivo CSV que se subió, el cual debemos leer
@@ -51,7 +51,7 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
 
 @csvData.post('/upload/relation/', response_model=basicResponse, response_model_exclude_unset=True)
 async def upload_node_csv(file: UploadFile, typeR: str, labels1: Optional[str] = '', labels2: Optional[str] = ''):
-    labels = [labels1.strip().upper().split(','), labels2.strip().upper().split(',')]
+    labels = [labels1.strip().capitalize().split(','), labels2.strip().capitalize().split(',')]
 
     try:
         # Aquí se debe implementar la lógica para leer el archivo CSV y subir los nodos a la base de datos

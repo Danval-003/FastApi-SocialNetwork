@@ -1,7 +1,7 @@
 import io
 from typing import List, Optional
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Depends, UploadFile
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 
 from tools import basicResponse, format_properties, makeQuery, createRelationship, NodeD
 from .create import hash_password
@@ -48,7 +48,7 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
 
 
 @csvData.post('/upload/relation/', response_model=basicResponse, response_model_exclude_unset=True)
-async def upload_node_csv(file: UploadFile, typeR: str, labels1: Optional[str] = '', labels2: Optional[str] = ''):
+async def upload_rel_csv(file: UploadFile = File(...), labels1: Optional[str] = '', labels2: Optional[str] = ''):
     labels = [labels1.strip().capitalize().split(','), labels2.strip().upper().split(',')]
 
     try:

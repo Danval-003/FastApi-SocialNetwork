@@ -48,7 +48,7 @@ async def upload_node_csv(file: UploadFile, labels: Optional[str] = ''):
 
 
 @csvData.post('/upload/relation/', response_model=basicResponse, response_model_exclude_unset=True)
-async def upload_rel_csv(file: UploadFile = File(...), labels1: Optional[str] = '', labels2: Optional[str] = ''):
+async def upload_rel_csv(file: UploadFile = File(...), labels1: Optional[str] = '', labels2: Optional[str] = '', typeR: Optional[str] = 'RELATES'):
     labels = [labels1.strip().capitalize().split(','), labels2.strip().upper().split(',')]
 
     try:

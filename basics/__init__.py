@@ -40,9 +40,10 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-neo4j_driver = GraphDatabase.driver(config['NEO4J_URI'],
-                                    auth=(config['NEO4J_USER'], config['NEO4J_PASSWORD']))
+"""neo4j_driver = GraphDatabase.driver(config['NEO4J_URI'],
+                                    auth=(config['NEO4J_USER'], config['NEO4J_PASSWORD']))"""
 mongo_client = MongoClient(config['MONGO_URI'])
 db = mongo_client['social_network']
 grid_fs = GridFS(db)
+neo4j_driver = None
 

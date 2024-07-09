@@ -1,1 +1,5 @@
 /.env
+# Add all pycache to gitignore
+__pycache__/
+# Add all pycache into all directories
+**/__pycache__/
